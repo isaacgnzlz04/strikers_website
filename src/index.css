@@ -1,0 +1,423 @@
+/* Tailwind CSS v4 Import */
+@import "tailwindcss";
+
+/* Google Fonts Import */
+@import url('https://fonts.googleapis.com/css2?family=Concert+One&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap');
+
+/* Theme Configuration */
+@theme {
+  /* Custom Colors */
+  --color-stiletto: #96333C;
+  --color-mischka: #D6D5D7;
+  --color-ebony-clay: #243341;
+  --color-havelock-blue: #4E98D5;
+  
+  /* Font Families */
+  --font-header: "Concert One", cursive;
+  --font-body: "Nunito Sans", sans-serif;
+}
+
+/* Dark Mode (Default) */
+:root,
+[data-theme="dark"] {
+  --bg-primary: #243341;
+  --bg-secondary: #1a2633;
+  --bg-tertiary: #2d3e50;
+  --text-primary: #D6D5D7;
+  --text-secondary: #a8a8aa;
+  --accent-primary: #96333C;
+  --accent-secondary: #4E98D5;
+  --border-color: rgba(214, 213, 215, 0.1);
+}
+
+/* Light Mode */
+[data-theme="light"] {
+  --bg-primary: #f5f5f7;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #e8e8ea;
+  --text-primary: #243341;
+  --text-secondary: #4a5568;
+  --accent-primary: #96333C;
+  --accent-secondary: #4E98D5;
+  --border-color: rgba(36, 51, 65, 0.1);
+  
+  /* Override Tailwind theme colors for light mode */
+  --color-mischka: #243341;
+  --color-ebony-clay: #f5f5f7;
+}
+
+/* Global Styles */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  line-height: 1.6;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-header);
+  line-height: 1.2;
+  margin-bottom: 1rem;
+}
+
+h1 {
+  font-size: clamp(3rem, 8vw, 6rem);
+}
+
+h2 {
+  font-size: clamp(2.5rem, 6vw, 4rem);
+}
+
+h3 {
+  font-size: clamp(2rem, 5vw, 3rem);
+}
+
+h4 {
+  font-size: clamp(1.5rem, 4vw, 2rem);
+}
+
+p {
+  font-size: clamp(1rem, 2vw, 1.125rem);
+  line-height: 1.75;
+  margin-bottom: 1rem;
+}
+
+a {
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+}
+
+/* Navigation Styles */
+.nav-link {
+  color: var(--color-mischka);
+  font-size: 1.125rem;
+  font-weight: 600;
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: var(--color-havelock-blue);
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 2px;
+  background-color: var(--color-havelock-blue);
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+/* Button Styles */
+.btn-primary {
+  background-color: var(--color-stiletto);
+  color: var(--color-mischka);
+  padding: 1rem 2rem;
+  border-radius: 0.5rem;
+  font-weight: 700;
+  font-size: 1.125rem;
+  border: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(150, 51, 60, 0.4);
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+  transform: translateY(-4px);
+  box-shadow: 0 6px 20px rgba(150, 51, 60, 0.6);
+}
+
+.btn-secondary {
+  background-color: var(--color-havelock-blue);
+  color: var(--color-mischka);
+  padding: 1rem 2rem;
+  border-radius: 0.5rem;
+  font-weight: 700;
+  font-size: 1.125rem;
+  border: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(78, 152, 213, 0.4);
+}
+
+.btn-secondary:hover {
+  opacity: 0.9;
+  transform: translateY(-4px);
+  box-shadow: 0 6px 20px rgba(78, 152, 213, 0.6);
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: var(--color-mischka);
+  padding: 1rem 2rem;
+  border-radius: 0.5rem;
+  font-weight: 700;
+  font-size: 1.125rem;
+  border: 2px solid var(--color-mischka);
+  transition: all 0.3s ease;
+}
+
+.btn-outline:hover {
+  background-color: var(--color-mischka);
+  color: var(--color-ebony-clay);
+}
+
+/* Section Styles */
+.section {
+  padding: 5rem 1rem;
+  min-height: 100vh;
+  position: relative;
+}
+
+@media (min-width: 768px) {
+  .section {
+    padding: 8rem 2rem;
+  }
+}
+
+.section-title {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+@media (min-width: 768px) {
+  .section-title {
+    margin-bottom: 4rem;
+  }
+}
+
+.section-content {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+/* Card Styles */
+.card {
+  background-color: var(--color-ebony-clay);
+  border: 1px solid rgba(214, 213, 215, 0.2);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+@media (min-width: 768px) {
+  .card {
+    padding: 2rem;
+  }
+}
+
+.card:hover {
+  border-color: rgba(214, 213, 215, 0.4);
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* Animation Classes */
+.animate-on-scroll {
+  opacity: 0;
+  transform: translateY(40px);
+}
+
+.animate-on-scroll.animated {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+/* Container */
+.container-custom {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+@media (min-width: 768px) {
+  .container-custom {
+    padding: 0 2rem;
+  }
+}
+
+/* Text Gradients */
+.text-gradient-red {
+  background: linear-gradient(to right, var(--color-stiletto), #ef4444);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-blue {
+  background: linear-gradient(to right, var(--color-havelock-blue), #60a5fa);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Background Effects */
+.bg-gradient-overlay {
+  background: linear-gradient(
+    135deg,
+    rgba(36, 51, 65, 0.95) 0%,
+    rgba(36, 51, 65, 0.85) 100%
+  );
+}
+
+/* Scrollbar Styling - Modern & Fluid */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 12px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 4px 0;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, 
+    rgba(150, 51, 60, 0.6) 0%, 
+    rgba(150, 51, 60, 0.8) 50%,
+    rgba(150, 51, 60, 0.6) 100%
+  );
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  transition: all 0.3s ease;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, 
+    rgba(150, 51, 60, 0.8) 0%, 
+    rgba(150, 51, 60, 1) 50%,
+    rgba(150, 51, 60, 0.8) 100%
+  );
+  border-color: rgba(150, 51, 60, 0.3);
+}
+
+/* Firefox scrollbar */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(150, 51, 60, 0.6) transparent;
+}
+
+/* Fluid Background */
+.fluid-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Glass Effect */
+.glass-effect {
+  background: rgba(36, 51, 65, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(214, 213, 215, 0.1);
+}
+
+/* Keyframe Animations */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(150, 51, 60, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(150, 51, 60, 0.8);
+  }
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift 3s ease infinite;
+}
+
+/* Scroll Indicator Animations */
+@keyframes scroll-bounce {
+  0%, 100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-10px);
+  }
+}
+
+@keyframes scroll-indicator {
+  0% {
+    top: 8px;
+    opacity: 1;
+  }
+  100% {
+    top: 32px;
+    opacity: 0;
+  }
+}
+
+.scroll-indicator-wrapper {
+  animation: scroll-bounce 2s ease-in-out infinite;
+}
+
+.scroll-indicator-dot {
+  animation: scroll-indicator 2s ease-in-out infinite;
+}
+
+/* Utility Classes */
+.no-print {
+  @media print {
+    display: none !important;
+  }
+}

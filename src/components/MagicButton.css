@@ -1,0 +1,75 @@
+.magic-button {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  transform-style: preserve-3d;
+  
+  --glow-x: 50%;
+  --glow-y: 50%;
+  --glow-intensity: 0;
+}
+
+.magic-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* Border glow effect */
+.magic-button--border-glow::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 2px;
+  background: radial-gradient(
+    300px circle at var(--glow-x) var(--glow-y),
+    rgba(150, 51, 60, calc(var(--glow-intensity) * 0.8)) 0%,
+    rgba(150, 51, 60, calc(var(--glow-intensity) * 0.4)) 30%,
+    transparent 60%
+  );
+  border-radius: inherit;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: subtract;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+}
+
+.magic-button--border-glow:hover::after {
+  opacity: 1;
+}
+
+.magic-button--border-glow:hover {
+  box-shadow:
+    0 4px 20px rgba(150, 51, 60, 0.3),
+    0 0 30px rgba(150, 51, 60, 0.2);
+}
+
+.magic-particle {
+  position: absolute;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.magic-particle::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: rgba(150, 51, 60, 0.2);
+  border-radius: 50%;
+  z-index: -1;
+}
+
+.magic-button-spotlight {
+  mix-blend-mode: screen;
+  will-change: transform, opacity;
+  pointer-events: none;
+}

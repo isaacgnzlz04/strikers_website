@@ -1,0 +1,25 @@
+/* League Card Scrollbar Styling */
+.league-card-back::-webkit-scrollbar {
+  width: 4px;
+}
+
+.league-card-back::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 8px 0;
+}
+
+.league-card-back::-webkit-scrollbar-thumb {
+  background: rgba(150, 51, 60, 0.4);
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.league-card-back::-webkit-scrollbar-thumb:hover {
+  background: rgba(150, 51, 60, 0.7);
+}
+
+/* Firefox */
+.league-card-back {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(150, 51, 60, 0.4) transparent;
+}
