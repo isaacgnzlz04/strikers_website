@@ -92,6 +92,23 @@ const Navigation = ({ openBooking }) => {
               About
             </button>
             <button 
+              onClick={() => scrollToSection('facilities')}
+              className="nav-link"
+              style={{
+                fontFamily: 'var(--font-body)',
+                color: 'var(--text-primary)',
+                textDecoration: 'none',
+                fontSize: '1rem',
+                fontWeight: '600',
+                transition: 'color 0.3s ease',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+              }}
+            >
+              Facilities
+            </button>
+            <button 
               onClick={() => scrollToSection('leagues')}
               className="nav-link"
               style={{
@@ -287,6 +304,25 @@ const Navigation = ({ openBooking }) => {
               }}
             >
               About
+            </button>
+            <button 
+              onClick={() => scrollToSection('facilities')}
+              style={{
+                fontFamily: 'var(--font-body)',
+                color: 'var(--text-primary)',
+                textDecoration: 'none',
+                fontSize: '1.1rem',
+                fontWeight: '600',
+                padding: '0.75rem 0',
+                borderBottom: '1px solid var(--border-color)',
+                background: 'none',
+                border: 'none',
+                borderBottom: '1px solid var(--border-color)',
+                cursor: 'pointer',
+                textAlign: 'left',
+              }}
+            >
+              Facilities
             </button>
             <button 
               onClick={() => scrollToSection('leagues')}

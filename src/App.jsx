@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { HeroSection, CardNav, ThemeToggle, FluidBackground, FeaturesSection, PricingSection, AboutSection, ContactSection, EventsSection, Footer, BookingModal, LeagueSignupModal } from './components';
+import { HeroSection, CardNav, ThemeToggle, FluidBackground, FeaturesSection, FacilitiesSection, PricingSection, AboutSection, ContactSection, EventsSection, Footer, BookingModal, LeagueSignupModal } from './components';
 import StandingsPage from './components/StandingsPage';
 import logo from './assets/logo.svg';
 
@@ -36,6 +36,12 @@ function App() {
           ariaLabel: "About Our Story",
           href: "#about",
           onClick: (e) => { e.preventDefault(); scrollToSection('about'); }
+        },
+        { 
+          label: "Facilities", 
+          ariaLabel: "Facilities & Amenities",
+          href: "#facilities",
+          onClick: (e) => { e.preventDefault(); scrollToSection('facilities'); }
         },
         { 
           label: "Contact Us", 
@@ -139,6 +145,9 @@ function App() {
 
       {/* About Section */}
       <AboutSection />
+
+      {/* Facilities & Amenities Section */}
+      <FacilitiesSection />
 
       {/* Events Section */}
       <EventsSection openBooking={() => setIsBookingModalOpen(true)} />

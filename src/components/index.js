@@ -8,6 +8,7 @@ export { default as ThemeToggle } from './ThemeToggle';
 export { default as FluidBackground } from './FluidBackground';
 export { default as CTASection } from './CTASection';
 export { default as FeaturesSection } from './FeaturesSection';
+export { default as FacilitiesSection } from './FacilitiesSection';
 export { default as PricingSection } from './PricingSection';
 export { default as AboutSection } from './AboutSection';
 export { default as ContactSection } from './ContactSection';

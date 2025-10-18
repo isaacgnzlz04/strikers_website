@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import bowlingAlleyInfo from '../data/bowlingAlleyInfo';
 
 const Footer = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -39,9 +40,9 @@ const Footer = () => {
   ];
 
   const contactInfo = [
-    { icon: '📍', text: '123 Strike Lane, Bowling City, BC 12345' },
-    { icon: '📞', text: '(555) 123-4567' },
-    { icon: '📧', text: 'info@strikersbowling.com' },
+    { icon: '📍', text: bowlingAlleyInfo.address.full },
+    { icon: '📞', text: 'Contact via our website' },
+    { icon: '📧', text: 'info@mainleestrikers.com' },
   ];
 
   return (
@@ -89,7 +90,7 @@ const Footer = () => {
                 marginBottom: '20px',
               }}
             >
-              Your premier bowling destination for over 30 years. Where strikes happen and memories are made.
+              {bowlingAlleyInfo.about.description}
             </p>
             {/* Social Links */}
             <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
@@ -219,9 +220,12 @@ const Footer = () => {
                   margin: 0,
                 }}
               >
-                Mon-Thu: 10am - 11pm<br />
-                Fri-Sat: 10am - 1am<br />
-                Sun: 11am - 10pm
+                {bowlingAlleyInfo.hoursFormatted.map((day, index) => (
+                  <React.Fragment key={day.day}>
+                    {day.day}: {day.hours}
+                    {index < bowlingAlleyInfo.hoursFormatted.length - 1 && <><br /></>}
+                  </React.Fragment>
+                ))}
               </p>
             </div>
           </div>
@@ -336,7 +340,7 @@ const Footer = () => {
               textAlign: isMobile ? 'center' : 'left',
             }}
           >
-            © {new Date().getFullYear()} Strikers Bowling Alley. All rights reserved.
+            {bowlingAlleyInfo.copyright}
           </p>
           <div
             style={{

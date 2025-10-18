@@ -3,11 +3,13 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import LeagueCard from './LeagueCard';
 import MagicButton from './MagicButton';
+import { getAllLeagues } from '../utils/standingsDB';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const FeaturesSection = ({ openLeagueSignup, openStandings }) => {
   const [isMobile, setIsMobile] = useState(false);
+  const [leagues, setLeagues] = useState([]);
   const titleRef = useRef(null);
   const subtitleRef = useRef(null);
   const cardsRef = useRef([]);
@@ -19,6 +21,15 @@ const FeaturesSection = ({ openLeagueSignup, openStandings }) => {
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
+    const loadLeagues = async () => {
+      const allLeagues = await getAllLeagues();
+      const activeLeagues = allLeagues.filter(l => l.active);
+      setLeagues(activeLeagues);
+    };
+    loadLeagues();
   }, []);
 
   useEffect(() => {
@@ -144,80 +155,47 @@ const FeaturesSection = ({ openLeagueSignup, openStandings }) => {
             margin: '0 auto',
           }}
         >
-          <LeagueCard
-            emoji="🎳"
-            title="Monday Night Open"
-            description="Open to all skill levels. Join us every Monday evening for competitive bowling and great company."
-            details={{
-              'Schedule': 'Every Monday, 7:00 PM - 9:30 PM',
-              'Season': '20 weeks (September - February)',
-              'Format': '4-person teams, handicap scoring',
-              'Skill Level': 'All levels welcome',
-              'Cost': '$15 per week',
-            }}
-            onClick={() => openLeagueSignup('Monday Night Open')}
-            cardRef={(el) => (cardsRef.current[0] = el)}
-          />
-
-          <LeagueCard
-            emoji="👩"
-            title="Tuesday Night Ladies"
-            description="Ladies night out! A fun and social league for women bowlers of all abilities."
-            details={{
-              'Schedule': 'Every Tuesday, 6:30 PM - 9:00 PM',
-              'Season': '16 weeks (October - February)',
-              'Format': '3-person teams, handicap scoring',
-              'Skill Level': 'Beginner to advanced',
-              'Cost': '$12 per week',
-            }}
-            onClick={() => openLeagueSignup('Tuesday Night Ladies')}
-            cardRef={(el) => (cardsRef.current[1] = el)}
-          />
-
-          <LeagueCard
-            emoji="👥"
-            title="Wednesday Night Mixed"
-            description="Couples and mixed teams welcome! Perfect for friends and family bowling together."
-            details={{
-              'Schedule': 'Every Wednesday, 7:00 PM - 9:30 PM',
-              'Season': '18 weeks (September - January)',
-              'Format': '4-person mixed teams, handicap scoring',
-              'Skill Level': 'All levels, couples encouraged',
-              'Cost': '$14 per week',
-            }}
-            onClick={() => openLeagueSignup('Wednesday Night Mixed')}
-            cardRef={(el) => (cardsRef.current[2] = el)}
-          />
-
-          <LeagueCard
-            emoji="⛪"
-            title="Church League"
-            description="Fellowship and fun! Bring your church group for a night of friendly competition."
-            details={{
-              'Schedule': 'Every Sunday, 5:00 PM - 7:30 PM',
-              'Season': '12 weeks (October - December)',
-              'Format': '5-person church teams, handicap scoring',
-              'Skill Level': 'Family-friendly, all ages',
-              'Cost': '$10 per week',
-            }}
-            onClick={() => openLeagueSignup('Church League')}
-            cardRef={(el) => (cardsRef.current[3] = el)}
-          />
-
-          <LeagueCard
-            emoji="👦"
-            title="Youth"
-            description="Junior bowlers unite! Our youth league teaches skills, sportsmanship, and builds confidence."
-            details={{
-              'Schedule': 'Every Saturday, 10:00 AM - 12:00 PM',
-              'Season': '16 weeks (September - January)',
-              'Format': 'Individual scoring with coaching',
-              'Age Group': 'Ages 6-17, grouped by skill',
-              'Cost': '$8 per week (includes coaching)',
-            }}
-            onClick={() => openLeagueSignup('Youth')}
-            cardRef={(el) => (cardsRef.current[4] = el)}
-          />
+          {leagues.length === 0 ? (
+            <div style={{
+              gridColumn: '1 / -1',
+              textAlign: 'center',
+              padding: '3rem',
+              color: 'var(--text-secondary)'
+            }}>
+              <p style={{ fontSize: '1.2rem' }}>Loading leagues...</p>
+            </div>
+          ) : (
+            leagues.map((league, index) => {
+              // Format emoji based on format or use default
+              const formatEmojis = {
+                'Open': '🎳',
+                'Men\'s': '👨',
+                'Ladies': '👩',
+                'Mixed': '👥',
+                'Youth': '👦',
+                'Seniors': '👴',
+                'Other': '🎯'
+              };
+              
+              const emoji = formatEmojis[league.format] || '🎳';
+              
+              return (
+                <LeagueCard
+                  key={league.name}
+                  emoji={emoji}
+                  title={league.name}
+                  description={league.description || `Join us for ${league.format} bowling!`}
+                  details={{
+                    'Schedule': `Every ${league.day}, ${league.time}`,
+                    'Season': `${league.totalWeeks} weeks`,
+                    'Format': league.format,
+                  }}
+                  onClick={() => openLeagueSignup(league.name)}
+                  cardRef={(el) => (cardsRef.current[index] = el)}
+                />
+              );
+            })
+          )}
         </div>
 
         {/* Standings Button */}

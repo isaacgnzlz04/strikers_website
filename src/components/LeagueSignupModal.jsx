@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
+import { getAllLeagues } from '../utils/standingsDB';
 
 const LeagueSignupModal = ({ isOpen, onClose, leagueName = '' }) => {
   const [isMobile, setIsMobile] = useState(false);
+  const [leagues, setLeagues] = useState([]);
   const modalContentRef = useRef(null);
   const backdropRef = useRef(null);
   const [formData, setFormData] = useState({
@@ -23,6 +25,15 @@ const LeagueSignupModal = ({ isOpen, onClose, leagueName = '' }) => {
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
+    const loadLeagues = async () => {
+      const allLeagues = await getAllLeagues();
+      const activeLeagues = allLeagues.filter(l => l.active);
+      setLeagues(activeLeagues);
+    };
+    loadLeagues();
   }, []);
 
   useEffect(() => {
@@ -358,11 +369,11 @@ const LeagueSignupModal = ({ isOpen, onClose, leagueName = '' }) => {
                 onBlur={(e) => (e.target.style.borderColor = 'var(--border-color)')}
               >
                 <option value="">Select a league</option>
-                <option value="Monday Night Open">Monday Night Open</option>
-                <option value="Tuesday Night Ladies">Tuesday Night Ladies</option>
-                <option value="Wednesday Night Mixed">Wednesday Night Mixed</option>
-                <option value="Church League">Church League</option>
-                <option value="Youth">Youth</option>
+                {leagues.map(league => (
+                  <option key={league.name} value={league.name}>
+                    {league.name} - {league.day}s at {league.time}
+                  </option>
+                ))}
               </select>
             </div>
 

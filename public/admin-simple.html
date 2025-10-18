@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strikers Bowling - Admin Panel</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      color: #ffffff;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .back-button {
+      display: inline-block;
+      padding: 10px 20px;
+      background: transparent;
+      border: 2px solid #4E98D5;
+      color: #4E98D5;
+      text-decoration: none;
+      border-radius: 25px;
+      margin-bottom: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .back-button:hover {
+      background: #4E98D5;
+      color: #ffffff;
+    }
+
+    h1 {
+      color: #96333C;
+      font-size: 3rem;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #999;
+      margin-bottom: 40px;
+      font-size: 1.1rem;
+    }
+
+    .login-box {
+      background: #2a2a2a;
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 400px;
+      margin: 100px auto;
+      border: 2px solid #96333C;
+    }
+
+    .login-box h2 {
+      color: #96333C;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    input[type="password"],
+    input[type="file"] {
+      width: 100%;
+      padding: 15px;
+      margin-bottom: 20px;
+      background: #1a1a1a;
+      border: 2px solid #444;
+      border-radius: 10px;
+      color: #ffffff;
+      font-size: 1rem;
+    }
+
+    button {
+      width: 100%;
+      padding: 15px;
+      background: #96333C;
+      border: none;
+      border-radius: 50px;
+      color: #ffffff;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background: #7a2830;
+      transform: translateY(-2px);
+    }
+
+    .league-selector {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 40px;
+    }
+
+    .league-btn {
+      padding: 12px 25px;
+      background: transparent;
+      border: 2px solid #4E98D5;
+      color: #4E98D5;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      width: auto;
+    }
+
+    .league-btn:hover {
+      background: #4E98D5;
+      color: #ffffff;
+    }
+
+    .league-btn.active {
+      background: #96333C;
+      border-color: #96333C;
+      color: #ffffff;
+    }
+
+    .upload-box {
+      background: #2a2a2a;
+      border-radius: 20px;
+      padding: 40px;
+      margin-bottom: 30px;
+      border: 2px solid #444;
+    }
+
+    .upload-box h3 {
+      color: #96333C;
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+    }
+
+    .upload-label {
+      display: block;
+      width: 100%;
+      padding: 60px 20px;
+      background: #1a1a1a;
+      border: 3px dashed #96333C;
+      border-radius: 15px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 20px;
+    }
+
+    .upload-label:hover {
+      border-color: #4E98D5;
+      background: #252525;
+    }
+
+    .upload-label .icon {
+      font-size: 3rem;
+      margin-bottom: 10px;
+    }
+
+    .status {
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 20px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .status.success {
+      background: rgba(76, 175, 80, 0.2);
+      border: 2px solid #4CAF50;
+      color: #4CAF50;
+    }
+
+    .status.error {
+      background: rgba(244, 67, 54, 0.2);
+      border: 2px solid #f44336;
+      color: #f44336;
+    }
+
+    .current-file {
+      background: #1a1a1a;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+
+    .current-file h4 {
+      color: #4E98D5;
+      margin-bottom: 10px;
+    }
+
+    .current-file p {
+      color: #999;
+      margin-bottom: 15px;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .secondary-btn {
+      background: transparent;
+      border: 2px solid #f44336;
+      color: #f44336;
+    }
+
+    .secondary-btn:hover {
+      background: #f44336;
+      color: #ffffff;
+    }
+
+    .preview-btn {
+      background: transparent;
+      border: 2px solid #4E98D5;
+      color: #4E98D5;
+    }
+
+    .preview-btn:hover {
+      background: #4E98D5;
+      color: #ffffff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="app"></div>
+  </div>
+
+  <script>
+    const ADMIN_PASSWORD = 'strikers2025';
+    const LEAGUES = [
+      'Monday Night Open',
+      'Tuesday Night Ladies',
+      'Wednesday Night Mixed',
+      'Church League',
+      'Youth'
+    ];
+
+    let isAuthenticated = sessionStorage.getItem('adminAuth') === 'true';
+    let selectedLeague = 'Monday Night Open';
+
+    function render() {
+      const app = document.getElementById('app');
+      
+      if (!isAuthenticated) {
+        app.innerHTML = `
+          <div class="login-box">
+            <h2>Admin Login</h2>
+            <input type="password" id="password" placeholder="Enter admin password" />
+            <button onclick="login()">Login</button>
+          </div>
+        `;
+        document.getElementById('password').addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') login();
+        });
+      } else {
+        const currentPDF = localStorage.getItem(`pdf_${selectedLeague}`);
+        const currentFileName = localStorage.getItem(`pdf_name_${selectedLeague}`);
+        
+        app.innerHTML = `
+          <a href="/" class="back-button">← Back to Site</a>
+          <h1>Update League Standings</h1>
+          <p class="subtitle">Upload PDF standings for your leagues</p>
+          
+          <div class="league-selector">
+            ${LEAGUES.map(league => `
+              <button class="league-btn ${league === selectedLeague ? 'active' : ''}" 
+                      onclick="selectLeague('${league}')">
+                ${league}
+              </button>
+            `).join('')}
+          </div>
+
+          <div class="upload-box">
+            <h3>📄 Upload Standings PDF for ${selectedLeague}</h3>
+            
+            <label for="pdfFile" class="upload-label">
+              <div class="icon">📤</div>
+              <div style="font-size: 1.2rem; color: #fff; margin-bottom: 10px;">
+                Click to upload PDF
+              </div>
+              <div style="color: #999; font-size: 0.9rem;">
+                or drag and drop
+              </div>
+            </label>
+            <input type="file" id="pdfFile" accept=".pdf" style="display: none;" onchange="handlePDFUpload(event)" />
+            
+            <div id="status"></div>
+
+            ${currentPDF ? `
+              <div class="current-file">
+                <h4>Current Standings File:</h4>
+                <p>📄 ${currentFileName || 'standings.pdf'}</p>
+                <div class="button-group">
+                  <button class="preview-btn" onclick="previewPDF()">👁️ Preview PDF</button>
+                  <button class="secondary-btn" onclick="removePDF()">🗑️ Remove PDF</button>
+                </div>
+              </div>
+            ` : '<p style="text-align: center; color: #999; margin-top: 20px;">No standings uploaded yet for this league</p>'}
+          </div>
+        `;
+
+        // Add drag and drop functionality
+        const label = document.querySelector('.upload-label');
+        label.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          label.style.borderColor = '#4E98D5';
+          label.style.background = '#252525';
+        });
+        label.addEventListener('dragleave', () => {
+          label.style.borderColor = '#96333C';
+          label.style.background = '#1a1a1a';
+        });
+        label.addEventListener('drop', (e) => {
+          e.preventDefault();
+          label.style.borderColor = '#96333C';
+          label.style.background = '#1a1a1a';
+          const files = e.dataTransfer.files;
+          if (files.length > 0) {
+            document.getElementById('pdfFile').files = files;
+            handlePDFUpload({ target: { files: files } });
+          }
+        });
+      }
+    }
+
+    function login() {
+      const password = document.getElementById('password').value;
+      if (password === ADMIN_PASSWORD) {
+        isAuthenticated = true;
+        sessionStorage.setItem('adminAuth', 'true');
+        render();
+      } else {
+        alert('Incorrect password!');
+      }
+    }
+
+    function selectLeague(league) {
+      selectedLeague = league;
+      render();
+    }
+
+    async function handlePDFUpload(event) {
+      const file = event.target.files[0];
+      if (!file || file.type !== 'application/pdf') {
+        showStatus('Please upload a valid PDF file', 'error');
+        return;
+      }
+
+      showStatus('Uploading PDF...', '');
+
+      try {
+        // Convert PDF to base64
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const base64 = e.target.result;
+          
+          // Store in localStorage
+          localStorage.setItem(`pdf_${selectedLeague}`, base64);
+          localStorage.setItem(`pdf_name_${selectedLeague}`, file.name);
+          
+          showStatus(`✅ Successfully uploaded ${file.name}!`, 'success');
+          
+          // Re-render to show the uploaded file
+          setTimeout(() => render(), 1500);
+        };
+        reader.readAsDataURL(file);
+      } catch (error) {
+        console.error('PDF upload error:', error);
+        showStatus('❌ Error uploading PDF. Please try again.', 'error');
+      }
+
+      event.target.value = '';
+    }
+
+    function previewPDF() {
+      const pdfData = localStorage.getItem(`pdf_${selectedLeague}`);
+      if (pdfData) {
+        // Open PDF in new tab
+        const win = window.open();
+        win.document.write(`
+          <html>
+            <head>
+              <title>${selectedLeague} Standings</title>
+              <style>
+                body { margin: 0; padding: 0; }
+                embed { width: 100%; height: 100vh; }
+              </style>
+            </head>
+            <body>
+              <embed src="${pdfData}" type="application/pdf" />
+            </body>
+          </html>
+        `);
+      }
+    }
+
+    function removePDF() {
+      if (confirm(`Are you sure you want to remove the standings PDF for ${selectedLeague}?`)) {
+        localStorage.removeItem(`pdf_${selectedLeague}`);
+        localStorage.removeItem(`pdf_name_${selectedLeague}`);
+        showStatus('PDF removed successfully!', 'success');
+        setTimeout(() => render(), 1000);
+      }
+    }
+
+    function showStatus(message, type) {
+      const statusEl = document.getElementById('status');
+      if (statusEl) {
+        statusEl.className = `status ${type}`;
+        statusEl.textContent = message;
+      }
+    }
+
+    // Initial render
+    render();
+  </script>
+</body>
+</html>

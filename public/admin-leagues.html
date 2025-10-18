@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strikers Bowling - League Management</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      color: #ffffff;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .back-button {
+      display: inline-block;
+      padding: 10px 20px;
+      background: transparent;
+      border: 2px solid #4E98D5;
+      color: #4E98D5;
+      text-decoration: none;
+      border-radius: 25px;
+      margin-bottom: 20px;
+      margin-right: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .back-button:hover {
+      background: #4E98D5;
+      color: #ffffff;
+    }
+
+    h1 {
+      color: #96333C;
+      font-size: 3rem;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #888;
+      margin-bottom: 40px;
+      font-size: 1.1rem;
+    }
+
+    .add-league-btn {
+      display: block;
+      margin: 0 auto 30px;
+      padding: 15px 40px;
+      background: #96333C;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .add-league-btn:hover {
+      background: #b03d48;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(150, 51, 60, 0.4);
+    }
+
+    .leagues-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 25px;
+      margin-bottom: 40px;
+    }
+
+    .league-card {
+      background: #2d2d2d;
+      border: 2px solid #444;
+      border-radius: 15px;
+      padding: 25px;
+      transition: all 0.3s ease;
+    }
+
+    .league-card:hover {
+      border-color: #4E98D5;
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(78, 152, 213, 0.2);
+    }
+
+    .league-card.inactive {
+      opacity: 0.6;
+      border-color: #666;
+    }
+
+    .league-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 15px;
+    }
+
+    .league-name {
+      color: #96333C;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    .active-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: #4E98D5;
+      color: white;
+    }
+
+    .inactive-badge {
+      background: #666;
+    }
+
+    .league-info {
+      margin-bottom: 15px;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #444;
+      font-size: 0.95rem;
+    }
+
+    .info-label {
+      color: #888;
+      font-weight: 600;
+    }
+
+    .info-value {
+      color: #fff;
+    }
+
+    .league-description {
+      color: #aaa;
+      font-size: 0.9rem;
+      margin: 15px 0;
+      font-style: italic;
+    }
+
+    .league-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .edit-btn, .delete-btn, .toggle-btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .edit-btn {
+      background: #4E98D5;
+      color: white;
+    }
+
+    .edit-btn:hover {
+      background: #5ea8e5;
+    }
+
+    .delete-btn {
+      background: #FF6B6B;
+      color: white;
+    }
+
+    .delete-btn:hover {
+      background: #ff5252;
+    }
+
+    .toggle-btn {
+      background: #666;
+      color: white;
+    }
+
+    .toggle-btn:hover {
+      background: #777;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: #2d2d2d;
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 600px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    .modal-title {
+      color: #96333C;
+      font-size: 2rem;
+      font-weight: 700;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      color: #888;
+      font-size: 2rem;
+      cursor: pointer;
+      line-height: 1;
+      transition: color 0.2s ease;
+    }
+
+    .close-btn:hover {
+      color: #fff;
+    }
+
+    .form-group {
+      margin-bottom: 25px;
+    }
+
+    .form-label {
+      display: block;
+      color: #4E98D5;
+      margin-bottom: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      padding: 12px;
+      background: #1a1a1a;
+      border: 2px solid #444;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 1rem;
+      font-family: inherit;
+    }
+
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      outline: none;
+      border-color: #4E98D5;
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .form-checkbox {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 15px;
+      background: #96333C;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .submit-btn:hover {
+      background: #b03d48;
+      transform: translateY(-2px);
+    }
+
+    .status {
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 10px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .status.success {
+      background: rgba(76, 175, 80, 0.2);
+      border: 2px solid #4CAF50;
+      color: #4CAF50;
+    }
+
+    .status.error {
+      background: rgba(244, 67, 54, 0.2);
+      border: 2px solid #f44336;
+      color: #f44336;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #888;
+    }
+
+    .empty-state-icon {
+      font-size: 4rem;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .leagues-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="app"></div>
+  </div>
+
+  <div id="leagueModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modalTitle">Add League</h2>
+        <button class="close-btn" onclick="closeModal()">&times;</button>
+      </div>
+      <form id="leagueForm" onsubmit="saveLeague(event)">
+        <div class="form-group">
+          <label class="form-label">League Name *</label>
+          <input type="text" id="leagueName" class="form-input" required 
+                 placeholder="e.g., Monday Night Open">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Day of Week *</label>
+          <select id="leagueDay" class="form-select" required>
+            <option value="">Select day...</option>
+            <option value="Monday">Monday</option>
+            <option value="Tuesday">Tuesday</option>
+            <option value="Wednesday">Wednesday</option>
+            <option value="Thursday">Thursday</option>
+            <option value="Friday">Friday</option>
+            <option value="Saturday">Saturday</option>
+            <option value="Sunday">Sunday</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Start Time *</label>
+          <input type="text" id="leagueTime" class="form-input" required 
+                 placeholder="e.g., 7:00 PM">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Format *</label>
+          <select id="leagueFormat" class="form-select" required>
+            <option value="">Select format...</option>
+            <option value="Open">Open</option>
+            <option value="Men's">Men's</option>
+            <option value="Ladies">Ladies</option>
+            <option value="Mixed">Mixed</option>
+            <option value="Youth">Youth</option>
+            <option value="Seniors">Seniors</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Total Weeks *</label>
+          <input type="number" id="leagueTotalWeeks" class="form-input" required 
+                 min="1" max="52" value="30" placeholder="e.g., 30">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea id="leagueDescription" class="form-textarea" 
+                    placeholder="Brief description of the league..."></textarea>
+        </div>
+        
+        <div class="form-group">
+          <div class="checkbox-group">
+            <input type="checkbox" id="leagueActive" class="form-checkbox" checked>
+            <label class="form-label" for="leagueActive" style="margin-bottom: 0;">Active League</label>
+          </div>
+        </div>
+        
+        <div id="formStatus"></div>
+        
+        <button type="submit" class="submit-btn">Save League</button>
+      </form>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initDB, getAllLeagues, saveLeague as saveLeagueDB, deleteLeague as deleteLeagueDB } from '../src/utils/standingsDB.js';
+
+    let leagues = [];
+    let editingLeague = null;
+
+    async function loadLeagues() {
+      try {
+        await initDB();
+        leagues = await getAllLeagues();
+        
+        // Sort by active status, then by name
+        leagues.sort((a, b) => {
+          if (a.active !== b.active) return b.active ? 1 : -1;
+          return a.name.localeCompare(b.name);
+        });
+        
+        render();
+      } catch (error) {
+        console.error('Error loading leagues:', error);
+        showStatus('Error loading leagues', 'error');
+      }
+    }
+
+    function render() {
+      const app = document.getElementById('app');
+      
+      app.innerHTML = `
+        <a href="/admin.html" class="back-button">← Back to Standings Admin</a>
+        <a href="/" class="back-button">🏠 Back to Site</a>
+        <h1>League Management</h1>
+        <p class="subtitle">Configure your bowling leagues</p>
+        
+        <button class="add-league-btn" onclick="window.openAddModal()">
+          ➕ Add New League
+        </button>
+        
+        ${leagues.length === 0 ? `
+          <div class="empty-state">
+            <div class="empty-state-icon">🎳</div>
+            <h2>No Leagues Configured</h2>
+            <p>Click "Add New League" to get started</p>
+          </div>
+        ` : `
+          <div class="leagues-grid">
+            ${leagues.map(league => `
+              <div class="league-card ${!league.active ? 'inactive' : ''}">
+                <div class="league-header">
+                  <h3 class="league-name">${league.name}</h3>
+                  <span class="active-badge ${!league.active ? 'inactive-badge' : ''}">
+                    ${league.active ? 'Active' : 'Inactive'}
+                  </span>
+                </div>
+                
+                <div class="league-info">
+                  <div class="info-row">
+                    <span class="info-label">Day:</span>
+                    <span class="info-value">${league.day}</span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-label">Time:</span>
+                    <span class="info-value">${league.time}</span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-label">Format:</span>
+                    <span class="info-value">${league.format}</span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-label">Total Weeks:</span>
+                    <span class="info-value">${league.totalWeeks} weeks</span>
+                  </div>
+                </div>
+                
+                ${league.description ? `
+                  <div class="league-description">"${league.description}"</div>
+                ` : ''}
+                
+                <div class="league-actions">
+                  <button class="edit-btn" onclick="window.editLeague('${league.name.replace(/'/g, "\\'")}')">
+                    ✏️ Edit
+                  </button>
+                  <button class="toggle-btn" onclick="window.toggleLeague('${league.name.replace(/'/g, "\\'")}')">
+                    ${league.active ? '🔒 Deactivate' : '✅ Activate'}
+                  </button>
+                  <button class="delete-btn" onclick="window.deleteLeague('${league.name.replace(/'/g, "\\'")}')">
+                    🗑️ Delete
+                  </button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `}
+      `;
+    }
+
+    function openAddModal() {
+      editingLeague = null;
+      document.getElementById('modalTitle').textContent = 'Add New League';
+      document.getElementById('leagueForm').reset();
+      document.getElementById('leagueActive').checked = true;
+      document.getElementById('leagueModal').classList.add('active');
+    }
+
+    function editLeague(leagueName) {
+      editingLeague = leagues.find(l => l.name === leagueName);
+      if (!editingLeague) return;
+      
+      document.getElementById('modalTitle').textContent = 'Edit League';
+      document.getElementById('leagueName').value = editingLeague.name;
+      document.getElementById('leagueName').readOnly = true;
+      document.getElementById('leagueDay').value = editingLeague.day;
+      document.getElementById('leagueTime').value = editingLeague.time;
+      document.getElementById('leagueFormat').value = editingLeague.format;
+      document.getElementById('leagueTotalWeeks').value = editingLeague.totalWeeks;
+      document.getElementById('leagueDescription').value = editingLeague.description || '';
+      document.getElementById('leagueActive').checked = editingLeague.active;
+      document.getElementById('leagueModal').classList.add('active');
+    }
+
+    async function toggleLeague(leagueName) {
+      const league = leagues.find(l => l.name === leagueName);
+      if (!league) return;
+      
+      league.active = !league.active;
+      
+      try {
+        await saveLeagueDB(league);
+        await loadLeagues();
+        showMainStatus(`League ${league.active ? 'activated' : 'deactivated'} successfully!`, 'success');
+      } catch (error) {
+        console.error('Error toggling league:', error);
+        showMainStatus('Error updating league', 'error');
+      }
+    }
+
+    async function deleteLeague(leagueName) {
+      if (!confirm(`⚠️ WARNING: This will permanently delete "${leagueName}" and ALL associated standings data. This cannot be undone. Are you sure?`)) {
+        return;
+      }
+      
+      if (!confirm(`Are you ABSOLUTELY sure you want to delete "${leagueName}"?`)) {
+        return;
+      }
+      
+      try {
+        await deleteLeagueDB(leagueName);
+        await loadLeagues();
+        showMainStatus('League deleted successfully!', 'success');
+      } catch (error) {
+        console.error('Error deleting league:', error);
+        showMainStatus('Error deleting league', 'error');
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('leagueModal').classList.remove('active');
+      document.getElementById('leagueName').readOnly = false;
+      editingLeague = null;
+    }
+
+    async function saveLeagueForm(event) {
+      event.preventDefault();
+      
+      const name = document.getElementById('leagueName').value.trim();
+      const day = document.getElementById('leagueDay').value;
+      const time = document.getElementById('leagueTime').value.trim();
+      const format = document.getElementById('leagueFormat').value;
+      const totalWeeks = parseInt(document.getElementById('leagueTotalWeeks').value);
+      const description = document.getElementById('leagueDescription').value.trim();
+      const active = document.getElementById('leagueActive').checked;
+      
+      const leagueConfig = {
+        name,
+        day,
+        time,
+        format,
+        totalWeeks,
+        description,
+        active
+      };
+      
+      try {
+        await saveLeagueDB(leagueConfig);
+        showFormStatus(`League saved successfully!`, 'success');
+        setTimeout(() => {
+          closeModal();
+          loadLeagues();
+        }, 1500);
+      } catch (error) {
+        console.error('Error saving league:', error);
+        showFormStatus('Error saving league', 'error');
+      }
+    }
+
+    function showFormStatus(message, type) {
+      const statusEl = document.getElementById('formStatus');
+      statusEl.className = `status ${type}`;
+      statusEl.textContent = message;
+    }
+
+    function showMainStatus(message, type) {
+      const app = document.getElementById('app');
+      const statusDiv = document.createElement('div');
+      statusDiv.className = `status ${type}`;
+      statusDiv.textContent = message;
+      statusDiv.style.position = 'fixed';
+      statusDiv.style.top = '20px';
+      statusDiv.style.left = '50%';
+      statusDiv.style.transform = 'translateX(-50%)';
+      statusDiv.style.zIndex = '9999';
+      statusDiv.style.minWidth = '300px';
+      app.appendChild(statusDiv);
+      setTimeout(() => statusDiv.remove(), 3000);
+    }
+
+    // Expose functions to window for onclick handlers
+    window.openAddModal = openAddModal;
+    window.editLeague = editLeague;
+    window.toggleLeague = toggleLeague;
+    window.deleteLeague = deleteLeague;
+    window.closeModal = closeModal;
+    window.saveLeague = saveLeagueForm;
+
+    // Initialize
+    loadLeagues();
+  </script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import bowlingAlleyInfo from '../data/bowlingAlleyInfo';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -191,22 +192,20 @@ const AboutSection = () => {
             }}
           >
             <p ref={(el) => (textRefs.current[0] = el)} style={{ marginBottom: '1.5rem', opacity: 0 }}>
-              Since 1995, Strikers has been the premier bowling destination, bringing families, 
-              friends, and communities together for unforgettable experiences. What started as 
-              a small 16-lane bowling alley has grown into a state-of-the-art entertainment 
-              complex with 32 modern lanes.
+              {bowlingAlleyInfo.tagline} Located in the heart of {bowlingAlleyInfo.address.city}, Arkansas, 
+              Strikers Bowling Alley is your ultimate entertainment destination combining professional 
+              bowling lanes, a state-of-the-art arcade, and a sports bar atmosphere.
             </p>
             <p ref={(el) => (textRefs.current[1] = el)} style={{ marginBottom: '1.5rem', opacity: 0 }}>
-              We pride ourselves on maintaining the perfect balance between classic bowling 
-              tradition and modern amenities. Our lanes feature the latest automatic scoring 
-              technology, comfortable seating, and ambient lighting that creates the perfect 
-              atmosphere for any occasion.
+              {bowlingAlleyInfo.about.mission} From bumper bowling for kids to competitive leagues 
+              for seasoned bowlers, we provide the perfect venue for families, groups, and events. 
+              Our {bowlingAlleyInfo.facilities[1].features.length}+ arcade games and full sports bar 
+              ensure there's something for everyone.
             </p>
             <p ref={(el) => (textRefs.current[2] = el)} style={{ opacity: 0 }}>
-              Whether you're here for a casual game with friends, a competitive league match, 
-              or celebrating a special occasion, our dedicated team ensures every visit to 
-              Strikers is memorable. Come experience the difference at Strikers – where every 
-              roll counts!
+              {bowlingAlleyInfo.marketing.callToAction} Join the {bowlingAlleyInfo.marketing.participation} 
+              who make bowling America's #1 participation activity. Whether you're here for open bowling, 
+              league competition, or a special event, Strikers delivers an unforgettable experience.
             </p>
           </div>
 

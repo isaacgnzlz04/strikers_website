@@ -175,7 +175,7 @@ const EventsSection = ({ openBooking }) => {
       className="section" 
       style={{ 
         minHeight: '100vh',
-        padding: isMobile ? '80px 20px' : '100px 40px',
+        padding: isMobile ? '80px 20px 20px 20px' : '100px 40px 20px 40px',
         position: 'relative',
         overflow: 'hidden',
       }}
@@ -258,10 +258,11 @@ const EventsSection = ({ openBooking }) => {
           style={{
             opacity: 0, 
             textAlign: 'center',
-            padding: isMobile ? '40px 20px' : '60px 40px',
+            padding: isMobile ? '20px 20px 10px 20px' : '30px 40px 10px 40px',
             borderRadius: '20px',
             background: 'rgba(var(--accent-primary-rgb), 0.05)',
             border: '1px solid rgba(var(--accent-primary-rgb), 0.1)',
+            marginBottom: '0',
           }}
         >
           <h3 
@@ -269,7 +270,7 @@ const EventsSection = ({ openBooking }) => {
               fontFamily: 'var(--font-header)',
               fontSize: isMobile ? '1.8rem' : '2.5rem',
               color: 'var(--text-primary)',
-              marginBottom: '20px',
+              marginBottom: '15px',
             }}
           >
             Ready to Plan Your Event?
@@ -279,67 +280,13 @@ const EventsSection = ({ openBooking }) => {
               fontFamily: 'var(--font-body)',
               fontSize: isMobile ? '1rem' : '1.2rem',
               color: 'var(--text-secondary)',
-              marginBottom: '30px',
+              marginBottom: '0',
               maxWidth: '600px',
-              margin: '0 auto 30px auto',
+              margin: '0 auto',
             }}
           >
             Our event coordinators are here to help you create an unforgettable experience. Contact us today to start planning!
           </p>
-          <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <MagicButton
-              enableSpotlight={true}
-              enableBorderGlow={true}
-              enableTilt={true}
-              enableMagnetism={true}
-              clickEffect={true}
-              spotlightRadius={300}
-              glowColor="150, 51, 60"
-              style={{
-                padding: isMobile ? '14px 32px' : '16px 40px',
-                fontSize: isMobile ? '1rem' : '1.1rem',
-                fontFamily: 'var(--font-body)',
-                fontWeight: '600',
-                color: 'var(--bg-primary)',
-                background: 'var(--accent-primary)',
-                border: 'none',
-                borderRadius: '50px',
-                cursor: 'pointer',
-                boxShadow: '0 4px 15px rgba(150, 51, 60, 0.3)',
-              }}
-              onClick={openBooking}
-            >
-              Contact Event Coordinator
-            </MagicButton>
-            <MagicButton
-              enableSpotlight={true}
-              enableBorderGlow={true}
-              enableTilt={true}
-              enableMagnetism={true}
-              clickEffect={true}
-              spotlightRadius={300}
-              glowColor="150, 51, 60"
-              style={{
-                padding: isMobile ? '14px 32px' : '16px 40px',
-                fontSize: isMobile ? '1rem' : '1.1rem',
-                fontFamily: 'var(--font-body)',
-                fontWeight: '600',
-                color: 'var(--accent-primary)',
-                background: 'transparent',
-                border: '2px solid var(--accent-primary)',
-                borderRadius: '50px',
-                cursor: 'pointer',
-              }}
-              onClick={() => {
-                const pricingSection = document.getElementById('pricing');
-                if (pricingSection) {
-                  pricingSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-              }}
-            >
-              View Event Packages
-            </MagicButton>
-          </div>
         </div>
       </div>
     </section>
@@ -473,7 +420,12 @@ const EventCard = ({ event, isMobile, cardRef, openBooking }) => {
           borderRadius: '50px',
           cursor: 'pointer',
         }}
-        onClick={openBooking}
+        onClick={() => {
+          const contactSection = document.getElementById('contact');
+          if (contactSection) {
+            contactSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }}
       >
         Request Information
       </MagicButton>

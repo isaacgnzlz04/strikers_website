@@ -1,42 +1,88 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import MagicButton from './MagicButton';
+import { getWeeksForLeague, getPDF, getAllLeagues } from '../utils/standingsDB';
 import './StandingsPage.css';
 
 const StandingsPage = ({ onClose }) => {
-  const [selectedLeague, setSelectedLeague] = useState('Monday Night Open');
-  const [standings, setStandings] = useState({});
+  const [leagues, setLeagues] = useState([]);
+  const [selectedLeague, setSelectedLeague] = useState(null);
+  const [availableWeeks, setAvailableWeeks] = useState([]);
+  const [selectedWeek, setSelectedWeek] = useState(null);
+  const [hasPDF, setHasPDF] = useState(false);
+  const [pdfFileName, setPdfFileName] = useState(null);
   const overlayRef = useRef(null);
   const modalRef = useRef(null);
   const titleRef = useRef(null);
   const buttonsRef = useRef([]);
-  const tableRef = useRef(null);
+  const contentRef = useRef(null);
+  const iframeRef = useRef(null);
 
-  const leagues = [
-    'Monday Night Open',
-    'Tuesday Night Ladies',
-    'Wednesday Night Mixed',
-    'Church League',
-    'Youth'
-  ];
+  // Download PDF function
+  const downloadPDF = async () => {
+    if (!selectedWeek) return;
+    
+    const pdfRecord = await getPDF(selectedLeague, selectedWeek);
+    if (!pdfRecord || !pdfRecord.pdfData) return;
+
+    try {
+      // Create a temporary link and trigger download
+      const link = document.createElement('a');
+      link.href = pdfRecord.pdfData;
+      link.download = pdfFileName || `${selectedLeague}-${selectedWeek}-standings.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Download error:', error);
+      alert('Error downloading PDF. Please try again.');
+    }
+  };
+
+  // View PDF in new window
+  const viewPDF = async () => {
+    if (!selectedWeek) return;
+    
+    const pdfRecord = await getPDF(selectedLeague, selectedWeek);
+    if (!pdfRecord || !pdfRecord.pdfData) return;
+
+    try {
+      // Convert base64 to blob
+      const base64String = pdfRecord.pdfData.split(',')[1];
+      const binaryString = window.atob(base64String);
+      const bytes = new Uint8Array(binaryString.length);
+      
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      
+      const blob = new Blob([bytes], { type: 'application/pdf' });
+      const blobUrl = URL.createObjectURL(blob);
+      
+      // Open in new window
+      window.open(blobUrl, '_blank');
+      
+      // Clean up after 1 minute
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+    } catch (error) {
+      console.error('View error:', error);
+      alert('Error opening PDF. Please try downloading instead.');
+    }
+  };
 
   useEffect(() => {
-    // Load standings from localStorage
-    const loadStandings = () => {
-      const saved = {};
-      leagues.forEach(league => {
-        const data = localStorage.getItem(`standings_${league}`);
-        if (data) {
-          try {
-            saved[league] = JSON.parse(data);
-          } catch (e) {
-            saved[league] = null;
-          }
-        }
-      });
-      setStandings(saved);
+    // Load leagues on mount
+    const loadLeagues = async () => {
+      const allLeagues = await getAllLeagues();
+      const activeLeagues = allLeagues.filter(l => l.active);
+      setLeagues(activeLeagues);
+      
+      // Auto-select first league
+      if (activeLeagues.length > 0 && !selectedLeague) {
+        setSelectedLeague(activeLeagues[0].name);
+      }
     };
-    loadStandings();
+    loadLeagues();
 
     // Entrance animations
     const tl = gsap.timeline();
@@ -68,9 +114,9 @@ const StandingsPage = ({ onClose }) => {
       '-=0.2'
     );
 
-    // Table fade in
-    if (tableRef.current) {
-      tl.fromTo(tableRef.current,
+    // Content fade in
+    if (contentRef.current) {
+      tl.fromTo(contentRef.current,
         { y: 20, opacity: 0 },
         { y: 0, opacity: 1, duration: 0.4, ease: 'power2.out' },
         '-=0.1'
@@ -82,17 +128,49 @@ const StandingsPage = ({ onClose }) => {
     };
   }, []);
 
-  // Animate table when league changes
+  // Update when league changes
   useEffect(() => {
-    if (tableRef.current) {
-      gsap.fromTo(tableRef.current,
+    if (!selectedLeague) return;
+    
+    const loadWeeks = async () => {
+      const weeks = await getWeeksForLeague(selectedLeague);
+      setAvailableWeeks(weeks);
+      
+      // Auto-select first week or most recent
+      if (weeks.length > 0) {
+        const mostRecent = weeks[weeks.length - 1];
+        setSelectedWeek(mostRecent.week);
+      } else {
+        setSelectedWeek(null);
+        setHasPDF(false);
+        setPdfFileName(null);
+      }
+    };
+    loadWeeks();
+
+    if (contentRef.current) {
+      gsap.fromTo(contentRef.current,
         { opacity: 0, y: 20 },
         { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }
       );
     }
   }, [selectedLeague]);
 
-  const currentStandings = standings[selectedLeague] || [];
+  // Update PDF info when week changes
+  useEffect(() => {
+    const checkPDF = async () => {
+      if (selectedWeek) {
+        const pdfRecord = await getPDF(selectedLeague, selectedWeek);
+        const weekData = availableWeeks.find(w => w.week === selectedWeek);
+        setHasPDF(!!pdfRecord);
+        setPdfFileName(weekData?.fileName || null);
+      } else {
+        setHasPDF(false);
+        setPdfFileName(null);
+      }
+    };
+    checkPDF();
+  }, [selectedWeek, selectedLeague, availableWeeks]);
 
   const handleClose = () => {
     const tl = gsap.timeline({
@@ -100,7 +178,7 @@ const StandingsPage = ({ onClose }) => {
     });
 
     // Reverse the entrance animation
-    tl.to(tableRef.current, {
+    tl.to(contentRef.current, {
       y: 20,
       opacity: 0,
       duration: 0.2,
@@ -221,93 +299,195 @@ const StandingsPage = ({ onClose }) => {
         >
           {leagues.map((league, index) => (
             <div
-              key={league}
+              key={league.name}
               ref={(el) => buttonsRef.current[index] = el}
               style={{ display: 'inline-block' }}
             >
               <MagicButton
                 effectType="borderGlow"
-                enableSpotlight={selectedLeague === league}
+                enableSpotlight={selectedLeague === league.name}
                 enableMagnetism={true}
                 clickEffect={true}
-                glowColor={selectedLeague === league ? "150, 51, 60" : "78, 152, 213"}
+                glowColor={selectedLeague === league.name ? "150, 51, 60" : "78, 152, 213"}
                 spotlightRadius={100}
                 className="league-selector-button"
                 style={{
                   padding: '10px 20px',
                   borderRadius: '25px',
-                  border: selectedLeague === league ? '2px solid var(--accent-primary)' : '2px solid var(--border-color)',
-                  backgroundColor: selectedLeague === league ? 'var(--accent-primary)' : 'transparent',
-                  color: selectedLeague === league ? '#ffffff' : 'var(--text-primary)',
+                  border: selectedLeague === league.name ? '2px solid var(--accent-primary)' : '2px solid var(--border-color)',
+                  backgroundColor: selectedLeague === league.name ? 'var(--accent-primary)' : 'transparent',
+                  color: selectedLeague === league.name ? '#ffffff' : 'var(--text-primary)',
                   fontFamily: 'var(--font-body)',
                   fontWeight: '600',
                   cursor: 'pointer',
                   fontSize: '14px',
                 }}
-                onClick={() => setSelectedLeague(league)}
+                onClick={() => setSelectedLeague(league.name)}
               >
-                {league}
+                {league.name}
               </MagicButton>
             </div>
           ))}
         </div>
 
-        {/* Standings Table */}
-        {currentStandings.length > 0 ? (
-          <div ref={tableRef} style={{ overflowX: 'auto' }}>
-            <table
-              style={{
-                width: '100%',
-                borderCollapse: 'collapse',
-                fontFamily: 'var(--font-body)',
-              }}
-            >
-              <thead>
-                <tr style={{ backgroundColor: 'var(--bg-secondary)', borderBottom: '2px solid var(--accent-primary)' }}>
-                  <th style={{ padding: '15px', textAlign: 'left', color: 'var(--accent-primary)' }}>Rank</th>
-                  <th style={{ padding: '15px', textAlign: 'left', color: 'var(--accent-primary)' }}>Team/Player</th>
-                  <th style={{ padding: '15px', textAlign: 'center', color: 'var(--accent-primary)' }}>Wins</th>
-                  <th style={{ padding: '15px', textAlign: 'center', color: 'var(--accent-primary)' }}>Losses</th>
-                  <th style={{ padding: '15px', textAlign: 'center', color: 'var(--accent-primary)' }}>Points</th>
-                  <th style={{ padding: '15px', textAlign: 'center', color: 'var(--accent-primary)' }}>Average</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentStandings.map((entry, index) => (
-                  <tr
-                    key={index}
-                    style={{
-                      backgroundColor: index % 2 === 0 ? 'var(--bg-secondary)' : 'transparent',
-                      borderBottom: '1px solid var(--border-color)',
-                    }}
-                  >
-                    <td style={{ padding: '15px', color: 'var(--text-primary)', fontWeight: '600' }}>{entry.rank}</td>
-                    <td style={{ padding: '15px', color: 'var(--text-primary)', fontWeight: '600' }}>{entry.name}</td>
-                    <td style={{ padding: '15px', textAlign: 'center', color: 'var(--text-secondary)' }}>{entry.wins}</td>
-                    <td style={{ padding: '15px', textAlign: 'center', color: 'var(--text-secondary)' }}>{entry.losses}</td>
-                    <td style={{ padding: '15px', textAlign: 'center', color: 'var(--text-secondary)' }}>{entry.points}</td>
-                    <td style={{ padding: '15px', textAlign: 'center', color: 'var(--text-secondary)' }}>{entry.average}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div
-            style={{
-              textAlign: 'center',
-              padding: '60px 20px',
+        {/* Week Selector */}
+        {availableWeeks.length > 1 && (
+          <div style={{
+            display: 'flex',
+            gap: '10px',
+            marginBottom: '20px',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}>
+            <span style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: '1rem',
               color: 'var(--text-secondary)',
-            }}
-          >
-            <p style={{ fontSize: '1.2rem', marginBottom: '20px' }}>
-              No standings available for {selectedLeague} yet.
-            </p>
-            <p style={{ fontSize: '1rem' }}>
-              Check back soon!
-            </p>
+              marginRight: '10px'
+            }}>
+              Select Week:
+            </span>
+            {availableWeeks.map((weekData) => (
+              <button
+                key={weekData.week}
+                onClick={() => setSelectedWeek(weekData.week)}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: '20px',
+                  border: selectedWeek === weekData.week ? '2px solid var(--accent-secondary)' : '2px solid var(--border-color)',
+                  backgroundColor: selectedWeek === weekData.week ? 'var(--accent-secondary)' : 'transparent',
+                  color: selectedWeek === weekData.week ? '#ffffff' : 'var(--text-primary)',
+                  fontFamily: 'var(--font-body)',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  if (selectedWeek !== weekData.week) {
+                    e.currentTarget.style.borderColor = 'var(--accent-secondary)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (selectedWeek !== weekData.week) {
+                    e.currentTarget.style.borderColor = 'var(--border-color)';
+                  }
+                }}
+              >
+                {weekData.week}
+              </button>
+            ))}
           </div>
         )}
+
+        {/* PDF Actions */}
+        <div ref={contentRef}>
+          {hasPDF ? (
+            <div style={{ 
+              width: '100%', 
+              padding: '60px 40px',
+              border: '2px solid var(--border-color)',
+              borderRadius: '15px',
+              backgroundColor: 'var(--bg-secondary)',
+              textAlign: 'center'
+            }}>
+              <div style={{ fontSize: '5rem', marginBottom: '30px' }}>📄</div>
+              <h3 style={{
+                fontFamily: 'var(--font-header)',
+                fontSize: '1.8rem',
+                color: 'var(--text-primary)',
+                marginBottom: '15px'
+              }}>
+                {selectedLeague} - {selectedWeek || 'Standings'}
+              </h3>
+              <p style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: '1rem',
+                color: 'var(--text-secondary)',
+                marginBottom: '40px'
+              }}>
+                {pdfFileName || 'standings.pdf'}
+              </p>
+              
+              <div style={{
+                display: 'flex',
+                gap: '15px',
+                justifyContent: 'center',
+                flexWrap: 'wrap'
+              }}>
+                <MagicButton
+                  effectType="borderGlow"
+                  enableSpotlight={true}
+                  enableMagnetism={true}
+                  clickEffect={true}
+                  glowColor="78, 152, 213"
+                  spotlightRadius={120}
+                  onClick={viewPDF}
+                  style={{
+                    padding: '15px 30px',
+                    fontSize: '1.1rem',
+                    fontWeight: '600',
+                    backgroundColor: 'var(--accent-secondary)',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '30px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '10px'
+                  }}
+                >
+                  <span style={{ fontSize: '1.3rem' }}>👁️</span>
+                  View PDF
+                </MagicButton>
+                
+                <MagicButton
+                  effectType="borderGlow"
+                  enableSpotlight={true}
+                  enableMagnetism={true}
+                  clickEffect={true}
+                  glowColor="150, 51, 60"
+                  spotlightRadius={120}
+                  onClick={downloadPDF}
+                  style={{
+                    padding: '15px 30px',
+                    fontSize: '1.1rem',
+                    fontWeight: '600',
+                    backgroundColor: 'var(--accent-primary)',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '30px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '10px'
+                  }}
+                >
+                  <span style={{ fontSize: '1.3rem' }}>📥</span>
+                  Download PDF
+                </MagicButton>
+              </div>
+            </div>
+          ) : (
+            <div
+              style={{
+                textAlign: 'center',
+                padding: '60px 20px',
+                color: 'var(--text-secondary)',
+                backgroundColor: 'var(--bg-secondary)',
+                borderRadius: '15px',
+                border: '2px dashed var(--border-color)',
+              }}
+            >
+              <div style={{ fontSize: '4rem', marginBottom: '20px', opacity: 0.5 }}>📄</div>
+              <p style={{ fontSize: '1.2rem', marginBottom: '20px', color: 'var(--text-primary)' }}>
+                No standings available for {selectedLeague} yet.
+              </p>
+              <p style={{ fontSize: '1rem' }}>
+                Check back soon!
+              </p>
+            </div>
+          )}
+        </div>
 
         {/* Admin Link */}
         <div style={{ textAlign: 'center', marginTop: '30px' }}>

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import MagicButton from './MagicButton';
+import bowlingAlleyInfo from '../data/bowlingAlleyInfo';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -431,8 +432,8 @@ const ContactSection = () => {
                     lineHeight: 1.6,
                   }}
                 >
-                  123 Strike Lane<br />
-                  Bowling City, BC 12345
+                  {bowlingAlleyInfo.address.street}<br />
+                  {bowlingAlleyInfo.address.city}, {bowlingAlleyInfo.address.state} {bowlingAlleyInfo.address.zip}
                 </div>
               </div>
 
@@ -446,17 +447,21 @@ const ContactSection = () => {
                     fontWeight: '600',
                   }}
                 >
-                  📞 Phone
+                  🌐 Website
                 </div>
-                <div 
+                <a
+                  href={bowlingAlleyInfo.links.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   style={{
                     fontFamily: 'var(--font-body)',
                     fontSize: '1.1rem',
-                    color: 'var(--text-primary)',
+                    color: 'var(--accent-primary)',
+                    textDecoration: 'none',
                   }}
                 >
-                  (555) 123-4567
-                </div>
+                  www.mainleestrikers.com
+                </a>
               </div>
 
               <div style={{ marginBottom: '2rem' }}>
@@ -478,7 +483,7 @@ const ContactSection = () => {
                     color: 'var(--text-primary)',
                   }}
                 >
-                  info@strikersbowling.com
+                  info@mainleestrikers.com
                 </div>
               </div>
 
@@ -502,9 +507,12 @@ const ContactSection = () => {
                     lineHeight: 1.8,
                   }}
                 >
-                  Monday - Thursday: 10am - 11pm<br />
-                  Friday - Saturday: 10am - 1am<br />
-                  Sunday: 11am - 10pm
+                  {bowlingAlleyInfo.hoursFormatted.map((day, index) => (
+                    <React.Fragment key={day.day}>
+                      {day.day}: {day.hours}
+                      {index < bowlingAlleyInfo.hoursFormatted.length - 1 && <><br /></>}
+                    </React.Fragment>
+                  ))}
                 </div>
               </div>
             </div>
