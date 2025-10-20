@@ -69,18 +69,19 @@ const MagicButton = forwardRef(({
       magnetismAnimationRef.current = null;
     }
 
-    // Remove particles immediately without animation to avoid React conflicts
+    // Remove particles safely without triggering React conflicts
     particlesRef.current.forEach(particle => {
       try {
-        // Kill any GSAP animations on this particle
+        // Kill any GSAP animations on this particle immediately
         gsap.killTweensOf(particle);
         
-        // Remove from DOM if still attached
-        if (particle && particle.parentNode) {
+        // Use a safer removal method that checks if parent still exists
+        if (particle && particle.isConnected && particle.parentNode) {
           particle.parentNode.removeChild(particle);
         }
       } catch (e) {
-        // Element already removed or not in DOM, ignore
+        // Element already removed or DOM structure changed, ignore safely
+        console.debug('Particle cleanup:', e.message);
       }
     });
     particlesRef.current = [];
@@ -311,11 +312,13 @@ const MagicButton = forwardRef(({
           ease: 'power2.out',
           onComplete: () => {
             try {
-              if (ripple && ripple.parentNode) {
+              // Check if element is still connected to DOM before removing
+              if (ripple && ripple.isConnected && ripple.parentNode) {
                 ripple.parentNode.removeChild(ripple);
               }
             } catch (e) {
-              // Already removed, ignore
+              // Already removed or DOM structure changed, ignore safely
+              console.debug('Ripple cleanup:', e.message);
             }
           }
         }
@@ -343,15 +346,21 @@ const MagicButton = forwardRef(({
       // Clear all animations and particles
       clearAllParticles();
       
+      // Kill all GSAP animations on the element itself
+      if (element) {
+        gsap.killTweensOf(element);
+      }
+      
       // Safely remove spotlight
       if (spotlightRef.current) {
         try {
           gsap.killTweensOf(spotlightRef.current);
-          if (spotlightRef.current.parentNode) {
+          if (spotlightRef.current.isConnected && spotlightRef.current.parentNode) {
             spotlightRef.current.parentNode.removeChild(spotlightRef.current);
           }
         } catch (e) {
-          // Element already removed or not in DOM, ignore
+          // Element already removed or DOM structure changed, ignore safely
+          console.debug('Spotlight cleanup:', e.message);
         }
         spotlightRef.current = null;
       }

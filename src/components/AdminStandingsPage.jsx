@@ -14,6 +14,7 @@ const AdminStandingsPage = ({ onClose, openPublicStandings }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isProcessingPDF, setIsProcessingPDF] = useState(false);
   const [pdfStatus, setPdfStatus] = useState('');
+  const [honorScoresUrl, setHonorScoresUrl] = useState('');
   const fileInputRef = useRef(null);
 
   const leagues = [
@@ -34,6 +35,14 @@ const AdminStandingsPage = ({ onClose, openPublicStandings }) => {
       setIsAuthenticated(true);
     }
   }, []);
+
+  useEffect(() => {
+    // Load Honor Scores URL
+    if (isAuthenticated) {
+      const savedUrl = localStorage.getItem('honorScoresUrl');
+      setHonorScoresUrl(savedUrl || 'https://mainleestrikers.com/honor-scores/');
+    }
+  }, [isAuthenticated]);
 
   useEffect(() => {
     // Load existing standings when league changes
@@ -92,6 +101,15 @@ const AdminStandingsPage = ({ onClose, openPublicStandings }) => {
     } catch (e) {
       alert('Error saving standings. Please check your format.');
     }
+  };
+
+  const handleSaveHonorScoresUrl = () => {
+    if (!honorScoresUrl.trim()) {
+      alert('Please enter a valid URL!');
+      return;
+    }
+    localStorage.setItem('honorScoresUrl', honorScoresUrl);
+    alert('Honor Scores URL saved successfully!');
   };
 
   const handleClear = () => {
@@ -393,6 +411,75 @@ const AdminStandingsPage = ({ onClose, openPublicStandings }) => {
               {league}
             </button>
           ))}
+        </div>
+
+        {/* Honor Scores URL Section */}
+        <div
+          style={{
+            backgroundColor: 'var(--bg-secondary)',
+            borderRadius: '15px',
+            padding: '30px',
+            marginBottom: '30px',
+            border: '2px solid var(--border-color)',
+          }}
+        >
+          <h2
+            style={{
+              fontFamily: 'var(--font-header)',
+              fontSize: '1.8rem',
+              color: 'var(--text-primary)',
+              marginBottom: '15px',
+            }}
+          >
+            Honor Scores URL
+          </h2>
+          <p
+            style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: '0.95rem',
+              color: 'var(--text-secondary)',
+              marginBottom: '20px',
+            }}
+          >
+            Set the URL that the "Honor Scores" button will link to on the League page
+          </p>
+          <input
+            type="url"
+            placeholder="https://mainleestrikers.com/honor-scores/"
+            value={honorScoresUrl}
+            onChange={(e) => setHonorScoresUrl(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '15px',
+              fontSize: '1rem',
+              fontFamily: 'var(--font-body)',
+              borderRadius: '10px',
+              border: '2px solid var(--border-color)',
+              backgroundColor: 'var(--bg-primary)',
+              color: 'var(--text-primary)',
+              marginBottom: '15px',
+            }}
+          />
+          <MagicButton
+            enableSpotlight={true}
+            enableBorderGlow={true}
+            clickEffect={true}
+            glowColor="150, 51, 60"
+            onClick={handleSaveHonorScoresUrl}
+            style={{
+              padding: '12px 30px',
+              fontSize: '1rem',
+              fontWeight: '600',
+              backgroundColor: 'var(--accent-primary)',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '50px',
+              cursor: 'pointer',
+              fontFamily: 'var(--font-body)',
+            }}
+          >
+            Save Honor Scores URL
+          </MagicButton>
         </div>
 
         {/* PDF Upload Section */}

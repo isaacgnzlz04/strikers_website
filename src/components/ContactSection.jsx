@@ -447,12 +447,10 @@ const ContactSection = () => {
                     fontWeight: '600',
                   }}
                 >
-                  🌐 Website
+                  📞 Phone
                 </div>
                 <a
-                  href={bowlingAlleyInfo.links.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href="tel:+14799680877"
                   style={{
                     fontFamily: 'var(--font-body)',
                     fontSize: '1.1rem',
@@ -460,7 +458,7 @@ const ContactSection = () => {
                     textDecoration: 'none',
                   }}
                 >
-                  www.mainleestrikers.com
+                  (479) 968-0877
                 </a>
               </div>
 

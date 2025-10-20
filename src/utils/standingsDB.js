@@ -2,6 +2,56 @@
 
 let db = null;
 
+const DEFAULT_LEAGUES = [
+  {
+    name: 'Monday Night Mixed',
+    format: 'Mixed',
+    day: 'Monday',
+    time: '6:30 PM',
+    totalWeeks: 32,
+    active: true,
+    description: 'Competitive mixed league perfect for teams that like a challenge and great atmosphere.',
+  },
+  {
+    name: 'Tuesday Women\'s Classic',
+    format: 'Ladies',
+    day: 'Tuesday',
+    time: '6:00 PM',
+    totalWeeks: 28,
+    active: true,
+    description: 'High-energy ladies league focused on skill building, camaraderie, and weekly fun.',
+  },
+  {
+    name: 'Wednesday Senior Rollers',
+    format: 'Seniors',
+    day: 'Wednesday',
+    time: '1:00 PM',
+    totalWeeks: 24,
+    active: true,
+    description: 'Relaxed daytime league tailored for seniors looking to stay active and social.',
+  },
+  {
+    name: 'Thursday Youth Thunder',
+    format: 'Youth',
+    day: 'Thursday',
+    time: '4:00 PM',
+    totalWeeks: 20,
+    active: true,
+    description: 'Youth development league with certified coaches, perfect for building fundamentals.',
+  },
+  {
+    name: 'Friday Night Lights',
+    format: 'Open',
+    day: 'Friday',
+    time: '9:00 PM',
+    totalWeeks: 36,
+    active: true,
+    description: 'Late-night open league with cosmic bowling vibes, music, and weekend energy.',
+  },
+];
+
+export const DEFAULT_LEAGUES_DATA = DEFAULT_LEAGUES.map((league) => ({ ...league }));
+
 // Initialize IndexedDB
 export function initDB() {
   return new Promise((resolve, reject) => {
@@ -51,7 +101,7 @@ export async function getWeeksForLeague(league) {
     request.onsuccess = () => {
       resolve(request.result?.weeks || []);
     };
-    request.onerror = () => resolve([]);
+    request.onerror = () => resolve([...DEFAULT_LEAGUES]);
   });
 }
 
@@ -69,6 +119,22 @@ export async function getPDF(league, week) {
 }
 
 // Get all leagues
+async function seedDefaultLeagues() {
+  const transaction = db.transaction(['leagues'], 'readwrite');
+  const store = transaction.objectStore('leagues');
+
+  await Promise.all(
+    DEFAULT_LEAGUES.map(
+      (league) =>
+        new Promise((resolve) => {
+          const req = store.put(league);
+          req.onsuccess = () => resolve();
+          req.onerror = () => resolve();
+        })
+    )
+  );
+}
+
 export async function getAllLeagues() {
   await initDB();
   return new Promise((resolve) => {
@@ -76,7 +142,17 @@ export async function getAllLeagues() {
     const store = transaction.objectStore('leagues');
     const request = store.getAll();
     
-    request.onsuccess = () => resolve(request.result || []);
+    request.onsuccess = async () => {
+      const results = request.result || [];
+
+      if (!results.length) {
+        await seedDefaultLeagues();
+        resolve([...DEFAULT_LEAGUES]);
+        return;
+      }
+
+      resolve(results);
+    };
     request.onerror = () => resolve([]);
   });
 }

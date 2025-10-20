@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 
-const BookingModal = ({ isOpen, onClose }) => {
+const EventModal = ({ isOpen, onClose }) => {
   const [isMobile, setIsMobile] = useState(false);
   const modalContentRef = useRef(null);
   const backdropRef = useRef(null);
@@ -12,11 +12,11 @@ const BookingModal = ({ isOpen, onClose }) => {
     name: '',
     email: '',
     phone: '',
-    date: '',
-    time: '',
-    lanes: '1',
-    people: '',
-    eventType: 'casual',
+    company: '',
+    eventType: 'birthday',
+    eventDate: '',
+    eventTime: '',
+    guests: '',
     specialRequests: '',
   });
 
@@ -118,20 +118,20 @@ const BookingModal = ({ isOpen, onClose }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Booking submitted:', formData);
-    alert('Thank you for your booking request! We will contact you shortly to confirm your reservation.');
+    console.log('Event inquiry submitted:', formData);
+    alert('Thank you for your event inquiry! We will contact you shortly to discuss your event details and availability.');
     setFormData({
       name: '',
       email: '',
       phone: '',
-      date: '',
-      time: '',
-      lanes: '1',
-      people: '',
-      eventType: 'casual',
+      company: '',
+      eventType: 'birthday',
+      eventDate: '',
+      eventTime: '',
+      guests: '',
       specialRequests: '',
     });
-    onClose();
+    handleClose();
   };
 
   if (!isOpen) return null;
@@ -216,7 +216,7 @@ const BookingModal = ({ isOpen, onClose }) => {
               textAlign: 'center',
             }}
           >
-            🎳 Book Your Lane
+            🎉 Plan Your Event
           </h2>
           <p
             style={{
@@ -227,7 +227,7 @@ const BookingModal = ({ isOpen, onClose }) => {
               textAlign: 'center',
             }}
           >
-            Fill out the form below and we'll confirm your booking shortly!
+            Let us help you create an unforgettable celebration!
           </p>
 
           <form ref={contentRef} onSubmit={handleSubmit}>
@@ -253,34 +253,23 @@ const BookingModal = ({ isOpen, onClose }) => {
                 required
                 style={{
                   width: '100%',
-                  padding: '12px 16px',
+                  padding: '12px 15px',
                   fontFamily: 'var(--font-body)',
                   fontSize: '1rem',
-                  color: 'var(--text-primary)',
+                  border: '2px solid var(--border-color)',
+                  borderRadius: '8px',
                   backgroundColor: 'var(--bg-secondary)',
-                  border: '1px solid var(--border-color)',
-                  borderRadius: '10px',
+                  color: 'var(--text-primary)',
+                  outline: 'none',
                   transition: 'border-color 0.3s ease',
                 }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = 'var(--accent-primary)';
-                  e.target.style.outline = 'none';
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = 'var(--border-color)';
-                }}
+                onFocus={(e) => (e.target.style.borderColor = 'var(--accent-primary)')}
+                onBlur={(e) => (e.target.style.borderColor = 'var(--border-color)')}
               />
             </div>
 
-            {/* Email and Phone */}
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
-                gap: '20px',
-                marginBottom: '20px',
-              }}
-            >
+            {/* Email & Phone Row */}
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '15px', marginBottom: '20px' }}>
               <div>
                 <label
                   style={{
@@ -302,22 +291,18 @@ const BookingModal = ({ isOpen, onClose }) => {
                   required
                   style={{
                     width: '100%',
-                    padding: '12px 16px',
+                    padding: '12px 15px',
                     fontFamily: 'var(--font-body)',
                     fontSize: '1rem',
-                    color: 'var(--text-primary)',
+                    border: '2px solid var(--border-color)',
+                    borderRadius: '8px',
                     backgroundColor: 'var(--bg-secondary)',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '10px',
+                    color: 'var(--text-primary)',
+                    outline: 'none',
                     transition: 'border-color 0.3s ease',
                   }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = 'var(--accent-primary)';
-                    e.target.style.outline = 'none';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = 'var(--border-color)';
-                  }}
+                  onFocus={(e) => (e.target.style.borderColor = 'var(--accent-primary)')}
+                  onBlur={(e) => (e.target.style.borderColor = 'var(--border-color)')}
                 />
               </div>
 
@@ -342,114 +327,56 @@ const BookingModal = ({ isOpen, onClose }) => {
                   required
                   style={{
                     width: '100%',
-                    padding: '12px 16px',
+                    padding: '12px 15px',
                     fontFamily: 'var(--font-body)',
                     fontSize: '1rem',
-                    color: 'var(--text-primary)',
+                    border: '2px solid var(--border-color)',
+                    borderRadius: '8px',
                     backgroundColor: 'var(--bg-secondary)',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '10px',
+                    color: 'var(--text-primary)',
+                    outline: 'none',
                     transition: 'border-color 0.3s ease',
                   }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = 'var(--accent-primary)';
-                    e.target.style.outline = 'none';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = 'var(--border-color)';
-                  }}
+                  onFocus={(e) => (e.target.style.borderColor = 'var(--accent-primary)')}
+                  onBlur={(e) => (e.target.style.borderColor = 'var(--border-color)')}
                 />
               </div>
             </div>
 
-            {/* Date and Time */}
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
-                gap: '20px',
-                marginBottom: '20px',
-              }}
-            >
-              <div>
-                <label
-                  style={{
-                    display: 'block',
-                    fontFamily: 'var(--font-body)',
-                    fontSize: '0.95rem',
-                    color: 'var(--text-primary)',
-                    marginBottom: '8px',
-                    fontWeight: '600',
-                  }}
-                >
-                  Date *
-                </label>
-                <input
-                  type="date"
-                  name="date"
-                  value={formData.date}
-                  onChange={handleChange}
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    fontFamily: 'var(--font-body)',
-                    fontSize: '1rem',
-                    color: 'var(--text-primary)',
-                    backgroundColor: 'var(--bg-secondary)',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '10px',
-                    transition: 'border-color 0.3s ease',
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = 'var(--accent-primary)';
-                    e.target.style.outline = 'none';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = 'var(--border-color)';
-                  }}
-                />
-              </div>
-
-              <div>
-                <label
-                  style={{
-                    display: 'block',
-                    fontFamily: 'var(--font-body)',
-                    fontSize: '0.95rem',
-                    color: 'var(--text-primary)',
-                    marginBottom: '8px',
-                    fontWeight: '600',
-                  }}
-                >
-                  Time *
-                </label>
-                <input
-                  type="time"
-                  name="time"
-                  value={formData.time}
-                  onChange={handleChange}
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    fontFamily: 'var(--font-body)',
-                    fontSize: '1rem',
-                    color: 'var(--text-primary)',
-                    backgroundColor: 'var(--bg-secondary)',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '10px',
-                    transition: 'border-color 0.3s ease',
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = 'var(--accent-primary)';
-                    e.target.style.outline = 'none';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = 'var(--border-color)';
-                  }}
-                />
-              </div>
+            {/* Company/Organization (Optional) */}
+            <div style={{ marginBottom: '20px' }}>
+              <label
+                style={{
+                  display: 'block',
+                  fontFamily: 'var(--font-body)',
+                  fontSize: '0.95rem',
+                  color: 'var(--text-primary)',
+                  marginBottom: '8px',
+                  fontWeight: '600',
+                }}
+              >
+                Company/Organization <span style={{ color: 'var(--text-secondary)', fontWeight: 'normal' }}>(Optional)</span>
+              </label>
+              <input
+                type="text"
+                name="company"
+                value={formData.company}
+                onChange={handleChange}
+                style={{
+                  width: '100%',
+                  padding: '12px 15px',
+                  fontFamily: 'var(--font-body)',
+                  fontSize: '1rem',
+                  border: '2px solid var(--border-color)',
+                  borderRadius: '8px',
+                  backgroundColor: 'var(--bg-secondary)',
+                  color: 'var(--text-primary)',
+                  outline: 'none',
+                  transition: 'border-color 0.3s ease',
+                }}
+                onFocus={(e) => (e.target.style.borderColor = 'var(--accent-primary)')}
+                onBlur={(e) => (e.target.style.borderColor = 'var(--border-color)')}
+              />
             </div>
 
             {/* Event Type */}
@@ -473,41 +400,32 @@ const BookingModal = ({ isOpen, onClose }) => {
                 required
                 style={{
                   width: '100%',
-                  padding: '12px 16px',
+                  padding: '12px 15px',
                   fontFamily: 'var(--font-body)',
                   fontSize: '1rem',
-                  color: 'var(--text-primary)',
+                  border: '2px solid var(--border-color)',
+                  borderRadius: '8px',
                   backgroundColor: 'var(--bg-secondary)',
-                  border: '1px solid var(--border-color)',
-                  borderRadius: '10px',
-                  transition: 'border-color 0.3s ease',
+                  color: 'var(--text-primary)',
+                  outline: 'none',
                   cursor: 'pointer',
+                  transition: 'border-color 0.3s ease',
                 }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = 'var(--accent-primary)';
-                  e.target.style.outline = 'none';
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = 'var(--border-color)';
-                }}
+                onFocus={(e) => (e.target.style.borderColor = 'var(--accent-primary)')}
+                onBlur={(e) => (e.target.style.borderColor = 'var(--border-color)')}
               >
-                <option value="casual">Casual Play</option>
                 <option value="birthday">Birthday Party</option>
                 <option value="corporate">Corporate Event</option>
-                <option value="group">Group Event</option>
-                <option value="league">League Play</option>
+                <option value="fundraiser">Fundraiser</option>
+                <option value="school">School/Youth Group</option>
+                <option value="wedding">Wedding Reception</option>
+                <option value="team-building">Team Building</option>
+                <option value="other">Other Celebration</option>
               </select>
             </div>
 
-            {/* Lanes and People */}
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
-                gap: '20px',
-                marginBottom: '20px',
-              }}
-            >
+            {/* Date & Time Row */}
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '15px', marginBottom: '20px' }}>
               <div>
                 <label
                   style={{
@@ -519,34 +437,29 @@ const BookingModal = ({ isOpen, onClose }) => {
                     fontWeight: '600',
                   }}
                 >
-                  Number of Lanes *
+                  Preferred Date *
                 </label>
                 <input
-                  type="number"
-                  name="lanes"
-                  value={formData.lanes}
+                  type="date"
+                  name="eventDate"
+                  value={formData.eventDate}
                   onChange={handleChange}
-                  min="1"
-                  max="10"
                   required
+                  min={new Date().toISOString().split('T')[0]}
                   style={{
                     width: '100%',
-                    padding: '12px 16px',
+                    padding: '12px 15px',
                     fontFamily: 'var(--font-body)',
                     fontSize: '1rem',
-                    color: 'var(--text-primary)',
+                    border: '2px solid var(--border-color)',
+                    borderRadius: '8px',
                     backgroundColor: 'var(--bg-secondary)',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '10px',
+                    color: 'var(--text-primary)',
+                    outline: 'none',
                     transition: 'border-color 0.3s ease',
                   }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = 'var(--accent-primary)';
-                    e.target.style.outline = 'none';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = 'var(--border-color)';
-                  }}
+                  onFocus={(e) => (e.target.style.borderColor = 'var(--accent-primary)')}
+                  onBlur={(e) => (e.target.style.borderColor = 'var(--border-color)')}
                 />
               </div>
 
@@ -561,39 +474,34 @@ const BookingModal = ({ isOpen, onClose }) => {
                     fontWeight: '600',
                   }}
                 >
-                  Number of People *
+                  Preferred Time *
                 </label>
                 <input
-                  type="number"
-                  name="people"
-                  value={formData.people}
+                  type="time"
+                  name="eventTime"
+                  value={formData.eventTime}
                   onChange={handleChange}
-                  min="1"
                   required
                   style={{
                     width: '100%',
-                    padding: '12px 16px',
+                    padding: '12px 15px',
                     fontFamily: 'var(--font-body)',
                     fontSize: '1rem',
-                    color: 'var(--text-primary)',
+                    border: '2px solid var(--border-color)',
+                    borderRadius: '8px',
                     backgroundColor: 'var(--bg-secondary)',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '10px',
+                    color: 'var(--text-primary)',
+                    outline: 'none',
                     transition: 'border-color 0.3s ease',
                   }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = 'var(--accent-primary)';
-                    e.target.style.outline = 'none';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = 'var(--border-color)';
-                  }}
+                  onFocus={(e) => (e.target.style.borderColor = 'var(--accent-primary)')}
+                  onBlur={(e) => (e.target.style.borderColor = 'var(--border-color)')}
                 />
               </div>
             </div>
 
-            {/* Special Requests */}
-            <div style={{ marginBottom: '30px' }}>
+            {/* Number of Guests */}
+            <div style={{ marginBottom: '20px' }}>
               <label
                 style={{
                   display: 'block',
@@ -604,33 +512,68 @@ const BookingModal = ({ isOpen, onClose }) => {
                   fontWeight: '600',
                 }}
               >
-                Special Requests
+                Expected Number of Guests *
+              </label>
+              <input
+                type="number"
+                name="guests"
+                value={formData.guests}
+                onChange={handleChange}
+                required
+                min="1"
+                placeholder="Enter number of guests"
+                style={{
+                  width: '100%',
+                  padding: '12px 15px',
+                  fontFamily: 'var(--font-body)',
+                  fontSize: '1rem',
+                  border: '2px solid var(--border-color)',
+                  borderRadius: '8px',
+                  backgroundColor: 'var(--bg-secondary)',
+                  color: 'var(--text-primary)',
+                  outline: 'none',
+                  transition: 'border-color 0.3s ease',
+                }}
+                onFocus={(e) => (e.target.style.borderColor = 'var(--accent-primary)')}
+                onBlur={(e) => (e.target.style.borderColor = 'var(--border-color)')}
+              />
+            </div>
+
+            {/* Special Requests */}
+            <div style={{ marginBottom: '25px' }}>
+              <label
+                style={{
+                  display: 'block',
+                  fontFamily: 'var(--font-body)',
+                  fontSize: '0.95rem',
+                  color: 'var(--text-primary)',
+                  marginBottom: '8px',
+                  fontWeight: '600',
+                }}
+              >
+                Special Requests or Questions <span style={{ color: 'var(--text-secondary)', fontWeight: 'normal' }}>(Optional)</span>
               </label>
               <textarea
                 name="specialRequests"
                 value={formData.specialRequests}
                 onChange={handleChange}
                 rows="4"
-                placeholder="Any special requests or requirements?"
+                placeholder="Tell us about any special requirements, dietary restrictions, or questions you have..."
                 style={{
                   width: '100%',
-                  padding: '12px 16px',
+                  padding: '12px 15px',
                   fontFamily: 'var(--font-body)',
                   fontSize: '1rem',
-                  color: 'var(--text-primary)',
+                  border: '2px solid var(--border-color)',
+                  borderRadius: '8px',
                   backgroundColor: 'var(--bg-secondary)',
-                  border: '1px solid var(--border-color)',
-                  borderRadius: '10px',
-                  transition: 'border-color 0.3s ease',
+                  color: 'var(--text-primary)',
+                  outline: 'none',
                   resize: 'vertical',
+                  transition: 'border-color 0.3s ease',
                 }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = 'var(--accent-primary)';
-                  e.target.style.outline = 'none';
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = 'var(--border-color)';
-                }}
+                onFocus={(e) => (e.target.style.borderColor = 'var(--accent-primary)')}
+                onBlur={(e) => (e.target.style.borderColor = 'var(--border-color)')}
               />
             </div>
 
@@ -639,28 +582,30 @@ const BookingModal = ({ isOpen, onClose }) => {
               type="submit"
               style={{
                 width: '100%',
-                padding: '16px',
-                fontSize: '1.1rem',
+                padding: '15px 30px',
                 fontFamily: 'var(--font-body)',
+                fontSize: '1.1rem',
                 fontWeight: '700',
-                color: 'var(--bg-primary)',
-                background: 'var(--accent-primary)',
+                color: '#fff',
+                backgroundColor: 'var(--accent-primary)',
                 border: 'none',
                 borderRadius: '50px',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
-                boxShadow: '0 4px 15px rgba(var(--accent-primary-rgb), 0.3)',
+                boxShadow: '0 4px 15px rgba(150, 51, 60, 0.3)',
               }}
               onMouseEnter={(e) => {
+                e.target.style.backgroundColor = 'var(--accent-secondary)';
                 e.target.style.transform = 'translateY(-2px)';
-                e.target.style.boxShadow = '0 6px 20px rgba(var(--accent-primary-rgb), 0.5)';
+                e.target.style.boxShadow = '0 6px 20px rgba(78, 152, 213, 0.4)';
               }}
               onMouseLeave={(e) => {
+                e.target.style.backgroundColor = 'var(--accent-primary)';
                 e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = '0 4px 15px rgba(var(--accent-primary-rgb), 0.3)';
+                e.target.style.boxShadow = '0 4px 15px rgba(150, 51, 60, 0.3)';
               }}
             >
-              Confirm Booking
+              Submit Event Inquiry
             </button>
           </form>
         </div>
@@ -669,4 +614,4 @@ const BookingModal = ({ isOpen, onClose }) => {
   );
 };
 
-export default BookingModal;
+export default EventModal;

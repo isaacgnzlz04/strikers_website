@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import bowlingAlleyInfo from '../data/bowlingAlleyInfo';
 
 const Footer = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [isMobile, setIsMobile] = useState(false);
   const [email, setEmail] = useState('');
 
@@ -23,13 +26,47 @@ const Footer = () => {
     setEmail('');
   };
 
+  const handleNavClick = (e, route, scrollToSection = null) => {
+    e.preventDefault();
+    
+    const currentPath = location.pathname;
+    const isOnTargetPage = currentPath === route;
+    
+    if (isOnTargetPage && scrollToSection) {
+      // Already on the page, just scroll
+      const element = document.getElementById(scrollToSection);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    } else if (isOnTargetPage) {
+      // Already on the page, scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      // Navigate to the route first
+      navigate(route);
+      
+      // Wait longer for navigation to complete, then scroll
+      setTimeout(() => {
+        if (scrollToSection) {
+          const element = document.getElementById(scrollToSection);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          } else {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }, 300); // Increased timeout for navigation
+    }
+  };
+
   const navigationLinks = [
-    { name: 'Home', href: '#home' },
-    { name: 'Features', href: '#features' },
-    { name: 'Pricing', href: '#pricing' },
-    { name: 'About', href: '#about' },
-    { name: 'Events', href: '#events' },
-    { name: 'Contact', href: '#contact' },
+    { name: 'Home', route: '/' },
+    { name: 'About', route: '/about' },
+    { name: 'Leagues', route: '/leagues' },
+    { name: 'Events & Packages', route: '/events' },
+    { name: 'Contact', route: '/', scrollTo: 'contact' },
   ];
 
   const socialLinks = [
@@ -41,7 +78,7 @@ const Footer = () => {
 
   const contactInfo = [
     { icon: '📍', text: bowlingAlleyInfo.address.full },
-    { icon: '📞', text: 'Contact via our website' },
+    { icon: '📞', text: '(479) 968-0877' },
     { icon: '📧', text: 'info@mainleestrikers.com' },
   ];
 
@@ -136,13 +173,15 @@ const Footer = () => {
               {navigationLinks.map((link, index) => (
                 <li key={index} style={{ marginBottom: '12px' }}>
                   <a
-                    href={link.href}
+                    href={link.route}
+                    onClick={(e) => handleNavClick(e, link.route, link.scrollTo)}
                     style={{
                       fontFamily: 'var(--font-body)',
                       fontSize: '0.95rem',
                       color: 'var(--text-secondary)',
                       textDecoration: 'none',
                       transition: 'color 0.3s ease',
+                      cursor: 'pointer',
                     }}
                     onMouseEnter={(e) => {
                       e.target.style.color = 'var(--accent-primary)';
@@ -342,69 +381,6 @@ const Footer = () => {
           >
             {bowlingAlleyInfo.copyright}
           </p>
-          <div
-            style={{
-              display: 'flex',
-              gap: '30px',
-              flexWrap: 'wrap',
-              justifyContent: isMobile ? 'center' : 'flex-end',
-            }}
-          >
-            <a
-              href="#privacy"
-              style={{
-                fontFamily: 'var(--font-body)',
-                fontSize: '0.9rem',
-                color: 'var(--text-secondary)',
-                textDecoration: 'none',
-                transition: 'color 0.3s ease',
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.color = 'var(--accent-primary)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.color = 'var(--text-secondary)';
-              }}
-            >
-              Privacy Policy
-            </a>
-            <a
-              href="#terms"
-              style={{
-                fontFamily: 'var(--font-body)',
-                fontSize: '0.9rem',
-                color: 'var(--text-secondary)',
-                textDecoration: 'none',
-                transition: 'color 0.3s ease',
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.color = 'var(--accent-primary)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.color = 'var(--text-secondary)';
-              }}
-            >
-              Terms of Service
-            </a>
-            <a
-              href="#accessibility"
-              style={{
-                fontFamily: 'var(--font-body)',
-                fontSize: '0.9rem',
-                color: 'var(--text-secondary)',
-                textDecoration: 'none',
-                transition: 'color 0.3s ease',
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.color = 'var(--accent-primary)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.color = 'var(--text-secondary)';
-              }}
-            >
-              Accessibility
-            </a>
-          </div>
         </div>
       </div>
     </footer>

@@ -1,12 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { getAllLeagues } from '../utils/standingsDB';
+import MagicButton from './MagicButton';
 
 const LeagueSignupModal = ({ isOpen, onClose, leagueName = '' }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [leagues, setLeagues] = useState([]);
   const modalContentRef = useRef(null);
   const backdropRef = useRef(null);
+  const titleRef = useRef(null);
+  const contentRef = useRef(null);
+  const closeBtnRef = useRef(null);
+  const openTlRef = useRef(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -48,34 +53,52 @@ const LeagueSignupModal = ({ isOpen, onClose, leagueName = '' }) => {
     };
   }, [isOpen]);
 
-  // Animation effect when modal opens
+  // Animation effect when modal opens - use timeline for consistent enter/exit behavior
   useEffect(() => {
-    if (isOpen && modalContentRef.current && backdropRef.current) {
-      // Animate backdrop fade in
-      gsap.fromTo(
-        backdropRef.current,
-        { opacity: 0 },
-        { opacity: 1, duration: 0.3, ease: 'power2.out' }
-      );
+    if (!isOpen) return;
 
-      // Animate modal content with scale and slide
-      gsap.fromTo(
-        modalContentRef.current,
-        { 
-          opacity: 0, 
-          scale: 0.8,
-          y: -50,
-        },
-        { 
-          opacity: 1, 
-          scale: 1,
-          y: 0,
-          duration: 0.5, 
-          ease: 'back.out(1.7)',
-          delay: 0.1,
-        }
+    const tl = gsap.timeline();
+    openTlRef.current = tl;
+
+    // Fade in backdrop
+    tl.fromTo(
+      backdropRef.current,
+      { opacity: 0 },
+      { opacity: 1, duration: 0.3, ease: 'power2.out' }
+    );
+
+    // Modal entrance - scale and slide
+    tl.fromTo(
+      modalContentRef.current,
+      { scale: 0.8, opacity: 0, y: -50 },
+      { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: 'back.out(1.7)' },
+      '-=0.15'
+    );
+
+    // Title slide in
+    if (titleRef.current) {
+      tl.fromTo(
+        titleRef.current,
+        { y: -20, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.35, ease: 'power2.out' },
+        '-=0.25'
       );
     }
+
+    // Content fade in
+    if (contentRef.current) {
+      tl.fromTo(
+        contentRef.current,
+        { y: 20, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.35, ease: 'power2.out' },
+        '-=0.2'
+      );
+    }
+
+    return () => {
+      tl.kill();
+      openTlRef.current = null;
+    };
   }, [isOpen]);
 
   // Update league when prop changes
@@ -109,6 +132,26 @@ const LeagueSignupModal = ({ isOpen, onClose, leagueName = '' }) => {
     onClose();
   };
 
+  const handleClose = () => {
+    const tl = gsap.timeline({ onComplete: onClose });
+
+    // Fade out content
+    if (contentRef.current) {
+      tl.to(contentRef.current, { y: 20, opacity: 0, duration: 0.18, ease: 'power2.in' });
+    }
+
+    // Title out
+    if (titleRef.current) {
+      tl.to(titleRef.current, { y: -20, opacity: 0, duration: 0.18, ease: 'power2.in' }, '-=0.12');
+    }
+
+    // Modal scale down
+    tl.to(modalContentRef.current, { scale: 0.8, opacity: 0, y: -30, duration: 0.28, ease: 'back.in(1.7)' }, '-=0.12');
+
+    // Fade out backdrop
+    tl.to(backdropRef.current, { opacity: 0, duration: 0.2, ease: 'power2.in' }, '-=0.18');
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -129,7 +172,7 @@ const LeagueSignupModal = ({ isOpen, onClose, leagueName = '' }) => {
         padding: isMobile ? '20px' : '40px',
         overflow: 'auto',
       }}
-      onClick={onClose}
+        onClick={handleClose}
     >
       <div
         ref={modalContentRef}
@@ -148,7 +191,8 @@ const LeagueSignupModal = ({ isOpen, onClose, leagueName = '' }) => {
       >
         {/* Close Button */}
         <button
-          onClick={onClose}
+          ref={closeBtnRef}
+          onClick={handleClose}
           style={{
             position: 'absolute',
             top: '20px',
@@ -168,11 +212,11 @@ const LeagueSignupModal = ({ isOpen, onClose, leagueName = '' }) => {
             zIndex: 10,
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = 'var(--bg-secondary)';
+            e.currentTarget.style.transform = 'rotate(90deg) scale(1.2)';
             e.currentTarget.style.color = 'var(--accent-primary)';
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'transparent';
+            e.currentTarget.style.transform = 'rotate(0deg) scale(1)';
             e.currentTarget.style.color = 'var(--text-secondary)';
           }}
         >
@@ -180,7 +224,7 @@ const LeagueSignupModal = ({ isOpen, onClose, leagueName = '' }) => {
         </button>
 
         {/* Modal Content */}
-        <div style={{ padding: isMobile ? '40px 20px 30px' : '50px 40px 40px' }}>
+        <div ref={contentRef} style={{ padding: isMobile ? '40px 20px 30px' : '50px 40px 40px' }}>
           {/* Header */}
           <div style={{ textAlign: 'center', marginBottom: '30px' }}>
             <div style={{ fontSize: '3rem', marginBottom: '10px' }}>🎳</div>
@@ -191,6 +235,7 @@ const LeagueSignupModal = ({ isOpen, onClose, leagueName = '' }) => {
                 color: 'var(--accent-primary)',
                 marginBottom: '10px',
               }}
+              ref={titleRef}
             >
               Join a League
             </h2>
@@ -543,33 +588,31 @@ const LeagueSignupModal = ({ isOpen, onClose, leagueName = '' }) => {
             </div>
 
             {/* Submit Button */}
-            <button
+            <MagicButton
               type="submit"
+              enableSpotlight={true}
+              enableBorderGlow={true}
+              enableTilt={true}
+              clickEffect={true}
+              spotlightRadius={220}
+              glowColor="150, 51, 60"
               style={{
                 width: '100%',
-                padding: '15px',
+                padding: '14px',
                 fontFamily: 'var(--font-body)',
-                fontSize: '1.1rem',
+                fontSize: '1.05rem',
                 fontWeight: '700',
                 color: 'white',
                 backgroundColor: 'var(--accent-primary)',
                 border: 'none',
                 borderRadius: '12px',
                 cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                boxShadow: '0 4px 15px rgba(150, 51, 60, 0.3)',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 6px 20px rgba(150, 51, 60, 0.4)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 4px 15px rgba(150, 51, 60, 0.3)';
+                transition: 'all 0.25s ease',
+                boxShadow: '0 6px 20px rgba(150, 51, 60, 0.35)',
               }}
             >
               Sign Up for League
-            </button>
+            </MagicButton>
           </form>
         </div>
       </div>

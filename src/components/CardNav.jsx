@@ -7,6 +7,7 @@ import './CardNav.css';
 const CardNav = ({
   logo,
   logoAlt = 'Logo',
+  logoOnClick,
   items,
   className = '',
   ease = 'power3.out',
@@ -14,8 +15,19 @@ const CardNav = ({
   menuColor,
   buttonBgColor,
   buttonTextColor,
-  onButtonClick
+  onButtonClick,
+  currentPath,
+  modalOpen = false
 }) => {
+  // Close nav dropdown if a modal opens
+  // Only run when modalOpen changes to true
+  useLayoutEffect(() => {
+    if (modalOpen && isExpanded) {
+      setIsHamburgerOpen(false);
+      setIsExpanded(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [modalOpen]);
   const [isHamburgerOpen, setIsHamburgerOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const navRef = useRef(null);
@@ -116,16 +128,47 @@ const CardNav = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isExpanded]);
 
+  // Reinitialize timeline when route changes (in case it got killed)
+  useLayoutEffect(() => {
+    // Close menu when route changes
+    if (isExpanded) {
+      setIsHamburgerOpen(false);
+      setIsExpanded(false);
+    }
+    
+    if (!tlRef.current) {
+      const tl = createTimeline();
+      if (tl) {
+        tlRef.current = tl;
+      }
+    } else {
+      // Reset timeline to beginning when menu is closed
+      if (!isExpanded) {
+        tlRef.current.progress(0);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPath]);
+
   const toggleMenu = () => {
-    const tl = tlRef.current;
-    if (!tl) return;
+    let tl = tlRef.current;
+    
+    // If timeline is missing, recreate it
+    if (!tl) {
+      tl = createTimeline();
+      if (!tl) return;
+      tlRef.current = tl;
+    }
+    
     if (!isExpanded) {
       setIsHamburgerOpen(true);
       setIsExpanded(true);
       tl.play(0);
     } else {
       setIsHamburgerOpen(false);
-      tl.eventCallback('onReverseComplete', () => setIsExpanded(false));
+      tl.eventCallback('onReverseComplete', () => {
+        setIsExpanded(false);
+      });
       tl.reverse();
     }
   };
@@ -181,19 +224,27 @@ const CardNav = ({
           <div 
             className="logo-container flex items-center md:absolute md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 order-1 md:order-none px-2 cursor-pointer"
             onClick={() => {
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              if (logoOnClick) {
+                logoOnClick();
+              } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }
               // Close hamburger menu if open
               if (isExpanded) {
                 toggleMenu();
               }
             }}
             role="button"
-            aria-label="Scroll to top"
+            aria-label={logoOnClick ? "Go to home page" : "Scroll to top"}
             tabIndex={0}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                if (logoOnClick) {
+                  logoOnClick();
+                } else {
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
                 if (isExpanded) {
                   toggleMenu();
                 }
@@ -253,12 +304,22 @@ const CardNav = ({
                     href={lnk.href}
                     aria-label={lnk.ariaLabel}
                     onClick={(e) => {
+                      e.preventDefault();
+                      
+                      // Execute the link's onClick handler first
                       if (lnk.onClick) {
                         lnk.onClick(e);
                       }
-                      // Close the hamburger menu
+                      
+                      // Then close the menu
                       if (isExpanded) {
-                        toggleMenu();
+                        setTimeout(() => {
+                          setIsHamburgerOpen(false);
+                          setIsExpanded(false);
+                          if (tlRef.current) {
+                            tlRef.current.reverse();
+                          }
+                        }, 50);
                       }
                     }}
                   >

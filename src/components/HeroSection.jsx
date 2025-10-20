@@ -18,6 +18,12 @@ import pin10 from '../assets/bowling_pins/10.svg';
 
 gsap.registerPlugin(ScrollTrigger);
 
+// Configure ScrollTrigger defaults for better performance
+ScrollTrigger.config({
+  autoRefreshEvents: "visibilitychange,DOMContentLoaded,load",
+  ignoreMobileResize: true,
+});
+
 const HeroSection = ({ openBooking }) => {
   const heroRef = useRef(null);
   const ballRef = useRef(null);
@@ -56,15 +62,42 @@ const HeroSection = ({ openBooking }) => {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
+      // Set initial state for smooth animation start
+      gsap.set(ballRef.current, {
+        x: 0,
+        rotation: 0,
+        opacity: 1,
+        force3D: true, // Force GPU acceleration
+      });
+
+      // Set initial state for CTA content
+      gsap.set(ctaContentRef.current, {
+        opacity: 1,
+        force3D: true,
+      });
+
+      // Set initial state for all pins
+      pinPositions.forEach((pin) => {
+        gsap.set(`.bowling-pin-${pin.id}`, {
+          x: 0,
+          y: 0,
+          rotation: 0,
+          opacity: 1,
+          force3D: true,
+        });
+      });
+
       // Single timeline for all animations
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: heroRef.current,
           start: 'top top',
           end: '+=100%',
-          scrub: 0.5,
+          scrub: true, // Changed from 0.5 to true for immediate response
           pin: true,
           pinSpacing: false,
+          anticipatePin: 1, // Helps prevent jump when pinning starts
+          invalidateOnRefresh: true, // Recalculate on resize
         }
       });
 
@@ -73,7 +106,8 @@ const HeroSection = ({ openBooking }) => {
         x: isMobile ? 400 : 840, // Travel across the gap to reach pins (doubled distance)
         rotation: 1440,
         duration: 0.8,
-        ease: 'power2.inOut'
+        ease: 'power2.inOut',
+        force3D: true, // Maintain GPU acceleration
       })
       // Ball continues moving after impact (0.5 - 1.0)
       .to(ballRef.current, {
@@ -81,7 +115,8 @@ const HeroSection = ({ openBooking }) => {
         rotation: '+=720',
         opacity: 0,
         duration: 0.5,
-        ease: 'power1.out'
+        ease: 'power1.out',
+        force3D: true,
       });
 
       // Animate each pin individually - all start at 0.5 (impact time when ball reaches them)
@@ -107,9 +142,17 @@ const HeroSection = ({ openBooking }) => {
         ease: 'power2.inOut'
       }, 0);
 
+      // Refresh ScrollTrigger after a short delay to ensure proper calculation
+      setTimeout(() => {
+        ScrollTrigger.refresh();
+      }, 100);
+
     }, heroRef);
 
-    return () => ctx.revert();
+    return () => {
+      ctx.revert();
+      ScrollTrigger.refresh();
+    };
   }, [isMobile]);
 
   return (
@@ -119,11 +162,13 @@ const HeroSection = ({ openBooking }) => {
       className="hero-section"
       style={{
         minHeight: '100vh',
+        height: '100vh', // Fixed height prevents layout shift
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         position: 'relative',
         overflow: 'hidden',
+        willChange: 'transform', // Hint for browser optimization
       }}
     >
       {/* Large Background Ball and Pins - 5x bigger, low opacity */}
@@ -156,6 +201,9 @@ const HeroSection = ({ openBooking }) => {
               width: '130px',
               position: 'relative',
               filter: 'drop-shadow(0 0 20px rgba(255, 255, 255, 0.6)) drop-shadow(0 0 40px rgba(255, 255, 255, 0.4))',
+              willChange: 'transform, opacity',
+              backfaceVisibility: 'hidden',
+              perspective: 1000,
             }}
           >
             <BowlingBall />
@@ -209,6 +257,8 @@ const HeroSection = ({ openBooking }) => {
           ref={ctaContentRef}
           style={{
             textAlign: 'center',
+            willChange: 'opacity',
+            backfaceVisibility: 'hidden',
           }}
         >
           <h1 

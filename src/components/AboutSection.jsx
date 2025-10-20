@@ -128,60 +128,12 @@ const AboutSection = () => {
   }, []);
 
   return (
-    <section 
-      id="about"
-      style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: isMobile ? '4rem 1.5rem' : '6rem 2rem',
-        position: 'relative',
-        zIndex: 100,
-      }}
-    >
-      <div 
-        style={{
-          maxWidth: '1200px',
-          width: '100%',
-          display: 'flex',
-          flexDirection: isMobile ? 'column' : 'row',
-          alignItems: 'center',
-          gap: '4rem',
-        }}
-      >
+    <section id="about" className="section" style={{ padding: isMobile ? '4rem 1.5rem' : '6rem 2rem', position: 'relative', zIndex: 100 }}>
+      <div className="section-content container-custom" style={{ maxWidth: '1200px', width: '100%', display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: 'center', gap: '4rem' }}>
         {/* Left Side - Content */}
         <div style={{ flex: 1 }}>
-          <div
-            ref={badgeRef}
-            style={{
-              display: 'inline-block',
-              padding: '8px 24px',
-              borderRadius: '30px',
-              background: 'var(--accent-primary)',
-              color: 'var(--bg-primary)',
-              fontFamily: 'var(--font-body)',
-              fontSize: '0.9rem',
-              fontWeight: '600',
-              marginBottom: '20px',
-              letterSpacing: '1px',
-              opacity: 0,
-            }}
-          >
-            ABOUT US
-          </div>
-          <h2 
-            ref={titleRef}
-            style={{
-              fontFamily: 'var(--font-header)',
-              fontSize: 'clamp(2.5rem, 5vw, 3.5rem)',
-              color: 'var(--text-primary)',
-              marginBottom: '1.5rem',
-              opacity: 0,
-            }}
-          >
-            About Strikers
-          </h2>
+          <div ref={badgeRef} style={{ display: 'inline-block', padding: '8px 24px', borderRadius: '30px', background: 'var(--accent-primary)', color: 'var(--bg-primary)', fontSize: '0.9rem', fontWeight: 600, marginBottom: '20px', letterSpacing: '1px', opacity: 0 }}>ABOUT US</div>
+          <h2 ref={titleRef} style={{ marginBottom: '1.5rem', opacity: 0 }}>About Strikers</h2>
           <div 
             style={{
               fontFamily: 'var(--font-body)',
