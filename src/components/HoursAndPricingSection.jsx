@@ -25,6 +25,13 @@ const HoursAndPricingSection = ({ openBooking }) => {
   const titleRef = useRef(null);
   const subtitleRef = useRef(null);
 
+  // Calculator Modal refs
+  const modalBackdropRef = useRef(null);
+  const modalContentRef = useRef(null);
+  const modalTitleRef = useRef(null);
+  const modalBodyRef = useRef(null);
+  const modeContentRef = useRef(null);
+
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
@@ -37,13 +44,97 @@ const HoursAndPricingSection = ({ openBooking }) => {
   useEffect(() => {
     if (showCalculator) {
       document.body.style.overflow = 'hidden';
+      // Hide navbar when calculator opens
+      const navbar = document.querySelector('.card-nav-container');
+      if (navbar) {
+        navbar.style.display = 'none';
+      }
     } else {
       document.body.style.overflow = 'auto';
+      // Show navbar when calculator closes
+      const navbar = document.querySelector('.card-nav-container');
+      if (navbar) {
+        navbar.style.display = 'block';
+      }
     }
     return () => {
       document.body.style.overflow = 'auto';
+      // Ensure navbar is visible on cleanup
+      const navbar = document.querySelector('.card-nav-container');
+      if (navbar) {
+        navbar.style.display = 'block';
+      }
     };
   }, [showCalculator]);
+
+  // Calculator modal animation
+  useEffect(() => {
+    if (!showCalculator) return;
+
+    const tl = gsap.timeline();
+
+    // Fade in backdrop
+    tl.fromTo(
+      modalBackdropRef.current,
+      { opacity: 0 },
+      { opacity: 1, duration: 0.3, ease: 'power2.out' }
+    );
+
+    // Modal entrance
+    tl.fromTo(
+      modalContentRef.current,
+      { scale: 0.8, opacity: 0, y: -50 },
+      { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: 'back.out(1.7)' },
+      '-=0.15'
+    );
+
+    // Title slide in
+    if (modalTitleRef.current) {
+      tl.fromTo(
+        modalTitleRef.current,
+        { y: -20, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.35, ease: 'power2.out' },
+        '-=0.25'
+      );
+    }
+
+    // Body fade in
+    if (modalBodyRef.current) {
+      tl.fromTo(
+        modalBodyRef.current,
+        { y: 20, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.35, ease: 'power2.out' },
+        '-=0.2'
+      );
+    }
+
+    return () => tl.kill();
+  }, [showCalculator]);
+
+  // Animate mode changes
+  useEffect(() => {
+    if (!showCalculator || !modeContentRef.current) return;
+
+    const tl = gsap.timeline();
+
+    // Fade out
+    tl.to(modeContentRef.current, {
+      opacity: 0,
+      x: -20,
+      duration: 0.2,
+      ease: 'power2.in',
+    });
+
+    // Fade in with new content
+    tl.to(modeContentRef.current, {
+      opacity: 1,
+      x: 0,
+      duration: 0.3,
+      ease: 'power2.out',
+    });
+
+    return () => tl.kill();
+  }, [calculatorMode, showCalculator]);
 
   useEffect(() => {
     // Use a single ScrollTrigger timeline for all animations to reduce overhead
@@ -218,8 +309,33 @@ const HoursAndPricingSection = ({ openBooking }) => {
     }
   };
 
+  const handleCloseCalculator = () => {
+    const tl = gsap.timeline({ onComplete: () => setShowCalculator(false) });
+
+    // Fade out body
+    if (modalBodyRef.current) {
+      tl.to(modalBodyRef.current, { y: 20, opacity: 0, duration: 0.18, ease: 'power2.in' });
+    }
+
+    // Title out
+    if (modalTitleRef.current) {
+      tl.to(modalTitleRef.current, { y: -20, opacity: 0, duration: 0.18, ease: 'power2.in' }, '-=0.12');
+    }
+
+    // Modal exit
+    if (modalContentRef.current) {
+      tl.to(modalContentRef.current, { scale: 0.8, opacity: 0, y: -50, duration: 0.25, ease: 'power2.in' }, '-=0.1');
+    }
+
+    // Fade out backdrop
+    if (modalBackdropRef.current) {
+      tl.to(modalBackdropRef.current, { opacity: 0, duration: 0.2, ease: 'power2.in' }, '-=0.2');
+    }
+  };
+
   const CalculatorModal = () => (
     <div
+      ref={modalBackdropRef}
       style={{
         position: 'fixed',
         top: 0,
@@ -233,9 +349,10 @@ const HoursAndPricingSection = ({ openBooking }) => {
         zIndex: 10000,
         padding: '20px',
       }}
-      onClick={() => setShowCalculator(false)}
+      onClick={handleCloseCalculator}
     >
       <div
+        ref={modalContentRef}
         style={{
           backgroundColor: 'var(--bg-primary)',
           borderRadius: '20px',
@@ -245,20 +362,60 @@ const HoursAndPricingSection = ({ openBooking }) => {
           border: '2px solid var(--accent-primary)',
           maxHeight: '90vh',
           overflowY: 'auto',
+          position: 'relative',
         }}
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Close Button (X) */}
+        <button
+          onClick={handleCloseCalculator}
+          style={{
+            position: 'absolute',
+            top: '20px',
+            right: '20px',
+            width: '36px',
+            height: '36px',
+            borderRadius: '50%',
+            border: '2px solid var(--accent-primary)',
+            backgroundColor: 'transparent',
+            color: 'var(--text-primary)',
+            fontSize: '1.5rem',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'all 0.3s ease',
+            fontWeight: '300',
+            lineHeight: 1,
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = 'var(--accent-primary)';
+            e.currentTarget.style.color = '#ffffff';
+            e.currentTarget.style.transform = 'rotate(90deg)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'transparent';
+            e.currentTarget.style.color = 'var(--text-primary)';
+            e.currentTarget.style.transform = 'rotate(0deg)';
+          }}
+        >
+          ×
+        </button>
+
         <h3
+          ref={modalTitleRef}
           style={{
             fontFamily: 'var(--font-header)',
             fontSize: '2rem',
             color: 'var(--text-primary)',
             marginBottom: '1rem',
+            paddingRight: '40px',
           }}
         >
           💰 Pricing Calculator
         </h3>
 
+        <div ref={modalBodyRef}>
         {/* Mode Toggle */}
         <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
           <button
@@ -274,6 +431,7 @@ const HoursAndPricingSection = ({ openBooking }) => {
               fontSize: '1rem',
               fontWeight: '600',
               cursor: 'pointer',
+              transition: 'all 0.3s ease',
             }}
           >
             Per Game
@@ -291,12 +449,15 @@ const HoursAndPricingSection = ({ openBooking }) => {
               fontSize: '1rem',
               fontWeight: '600',
               cursor: 'pointer',
+              transition: 'all 0.3s ease',
             }}
           >
             Hourly Rate
           </button>
         </div>
 
+        {/* Mode Content with Animation */}
+        <div ref={modeContentRef}>
         {/* Per Game Mode */}
         {calculatorMode === 'perGame' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -473,7 +634,7 @@ const HoursAndPricingSection = ({ openBooking }) => {
         <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
           <MagicButton
             type="button"
-            onClick={() => setShowCalculator(false)}
+            onClick={handleCloseCalculator}
             style={{
               flex: 1,
               backgroundColor: 'var(--bg-secondary)',
@@ -490,8 +651,8 @@ const HoursAndPricingSection = ({ openBooking }) => {
           <MagicButton
             type="button"
             onClick={() => {
-              setShowCalculator(false);
-              openBooking();
+              handleCloseCalculator();
+              setTimeout(() => openBooking(), 300);
             }}
             enableSpotlight={true}
             enableBorderGlow={true}
@@ -508,6 +669,8 @@ const HoursAndPricingSection = ({ openBooking }) => {
           >
             Book Now!
           </MagicButton>
+        </div>
+        </div>
         </div>
       </div>
     </div>

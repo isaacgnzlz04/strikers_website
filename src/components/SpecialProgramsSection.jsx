@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { bowlingAlleyInfo } from '../data/bowlingAlleyInfo';
@@ -9,6 +10,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 const SpecialProgramsSection = () => {
   const [isMobile, setIsMobile] = useState(false);
+  const navigate = useNavigate();
   const badgeRef = useRef(null);
   const titleRef = useRef(null);
   const cardsRef = useRef([]);
@@ -91,23 +93,30 @@ const SpecialProgramsSection = () => {
       icon: '👦',
       description: 'Kids ages 5-17 learn bowling fundamentals in a fun, supportive environment. Season starts Sept 13, 2025.',
       highlight: 'Starting Sept 13, 2025',
-      action: 'Learn More',
-      link: '#facilities',
+      action: 'View League Info',
+      type: 'internal',
+      link: '/leagues',
     },
     {
       title: bowlingAlleyInfo.specialPrograms[1].name,
       icon: '♿',
       description: 'Inclusive bowling for all ages and abilities. One free game including shoes in a welcoming community.',
       highlight: 'Free Game Included',
-      action: 'Learn More',
-      link: '#facilities',
+      action: 'Visit Bowlability',
+      type: 'external',
+      link: bowlingAlleyInfo.specialPrograms[1].link,
     },
   ];
 
-  const scrollToSection = (sectionId) => {
-    const element = document.getElementById(sectionId.replace('#', ''));
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const handleProgramClick = (program) => {
+    if (program.type === 'internal') {
+      navigate(program.link);
+      // Scroll to top after navigation
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 100);
+    } else if (program.type === 'external') {
+      window.open(program.link, '_blank', 'noopener,noreferrer');
     }
   };
 
@@ -248,7 +257,7 @@ const SpecialProgramsSection = () => {
                 {/* Learn More Button */}
                 <MagicButton
                   type="button"
-                  onClick={() => scrollToSection(program.link)}
+                  onClick={() => handleProgramClick(program)}
                   enableSpotlight={true}
                   enableBorderGlow={true}
                   enableTilt={true}

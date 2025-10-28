@@ -7,6 +7,7 @@
   --glow-x: 50%;
   --glow-y: 50%;
   --glow-intensity: 0;
+  transition: --glow-intensity 0.3s ease;
 }
 
 .magic-button:hover {

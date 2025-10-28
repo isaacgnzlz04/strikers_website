@@ -9,7 +9,7 @@ import { getAllLeagues } from '../utils/standingsDB';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const LeaguePage = ({ openLeagueSignup, openStandings }) => {
+const LeaguePage = ({ openLeagueSignup, openStandings, openHonorScores }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [leagues, setLeagues] = useState([]);
   const [activeFilter, setActiveFilter] = useState('All');
@@ -495,10 +495,7 @@ const LeaguePage = ({ openLeagueSignup, openStandings }) => {
               enableTilt={true}
               clickEffect={true}
               className="btn-outline"
-              onClick={() => {
-                const honorScoresUrl = localStorage.getItem('honorScoresUrl') || 'https://mainleestrikers.com/honor-scores/';
-                window.open(honorScoresUrl, '_blank', 'noopener,noreferrer');
-              }}
+              onClick={openHonorScores}
             >
               Honor Scores
             </MagicButton>

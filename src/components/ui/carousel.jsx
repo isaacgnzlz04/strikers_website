@@ -54,6 +54,13 @@ const Slide = ({
     event.currentTarget.style.opacity = "1";
   };
 
+  const handleSlideButtonClick = (e) => {
+    e.stopPropagation();
+    if (slide.link) {
+      window.open(slide.link, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   const { src, button, title } = slide;
 
   return (
@@ -92,6 +99,16 @@ const Slide = ({
             decoding="sync" />
           {current === index && (
             <div className="absolute inset-0 bg-black/30 transition-all duration-1000" />
+          )}
+          {current === index && button && (
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
+              <button
+                onClick={handleSlideButtonClick}
+                className="px-6 py-2 bg-white/90 hover:bg-white text-black font-semibold rounded-full transition-all duration-300 hover:scale-105"
+              >
+                {button}
+              </button>
+            </div>
           )}
         </div>
       </li>

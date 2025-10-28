@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
+import { useEventBooking } from '../hooks/useEventBooking';
 
 const EventModal = ({ isOpen, onClose }) => {
   const [isMobile, setIsMobile] = useState(false);
@@ -13,7 +14,7 @@ const EventModal = ({ isOpen, onClose }) => {
     email: '',
     phone: '',
     company: '',
-    eventType: 'birthday',
+    eventType: 'Birthday',
     eventDate: '',
     eventTime: '',
     guests: '',
@@ -116,22 +117,40 @@ const EventModal = ({ isOpen, onClose }) => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const { bookEvent, loading, error } = useEventBooking();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Event inquiry submitted:', formData);
-    alert('Thank you for your event inquiry! We will contact you shortly to discuss your event details and availability.');
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      company: '',
-      eventType: 'birthday',
-      eventDate: '',
-      eventTime: '',
-      guests: '',
-      specialRequests: '',
-    });
-    handleClose();
+    
+    try {
+      await bookEvent({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        company: formData.company,
+        eventType: formData.eventType,
+        eventDate: formData.eventDate,
+        eventTime: formData.eventTime,
+        guests: parseInt(formData.guests),
+        specialRequests: formData.specialRequests,
+      });
+      
+      alert('Thank you for your event inquiry! We will contact you shortly to discuss your event details and availability.');
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        company: '',
+        eventType: 'Birthday',
+        eventDate: '',
+        eventTime: '',
+        guests: '',
+        specialRequests: '',
+      });
+      handleClose();
+    } catch (err) {
+      alert(err.message || 'Failed to submit event inquiry. Please try again.');
+    }
   };
 
   if (!isOpen) return null;
@@ -414,13 +433,10 @@ const EventModal = ({ isOpen, onClose }) => {
                 onFocus={(e) => (e.target.style.borderColor = 'var(--accent-primary)')}
                 onBlur={(e) => (e.target.style.borderColor = 'var(--border-color)')}
               >
-                <option value="birthday">Birthday Party</option>
-                <option value="corporate">Corporate Event</option>
-                <option value="fundraiser">Fundraiser</option>
-                <option value="school">School/Youth Group</option>
-                <option value="wedding">Wedding Reception</option>
-                <option value="team-building">Team Building</option>
-                <option value="other">Other Celebration</option>
+                <option value="Birthday">Birthday Party</option>
+                <option value="Corporate">Corporate Event</option>
+                <option value="Fundraiser">Fundraiser</option>
+                <option value="School/Youth Group">School/Youth Group</option>
               </select>
             </div>
 
@@ -580,6 +596,7 @@ const EventModal = ({ isOpen, onClose }) => {
             {/* Submit Button */}
             <button
               type="submit"
+              disabled={loading}
               style={{
                 width: '100%',
                 padding: '15px 30px',
@@ -587,25 +604,30 @@ const EventModal = ({ isOpen, onClose }) => {
                 fontSize: '1.1rem',
                 fontWeight: '700',
                 color: '#fff',
-                backgroundColor: 'var(--accent-primary)',
+                backgroundColor: loading ? '#999' : 'var(--accent-primary)',
                 border: 'none',
                 borderRadius: '50px',
-                cursor: 'pointer',
+                cursor: loading ? 'not-allowed' : 'pointer',
                 transition: 'all 0.3s ease',
                 boxShadow: '0 4px 15px rgba(150, 51, 60, 0.3)',
+                opacity: loading ? 0.7 : 1,
               }}
               onMouseEnter={(e) => {
-                e.target.style.backgroundColor = 'var(--accent-secondary)';
-                e.target.style.transform = 'translateY(-2px)';
-                e.target.style.boxShadow = '0 6px 20px rgba(78, 152, 213, 0.4)';
+                if (!loading) {
+                  e.target.style.backgroundColor = 'var(--accent-secondary)';
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = '0 6px 20px rgba(78, 152, 213, 0.4)';
+                }
               }}
               onMouseLeave={(e) => {
-                e.target.style.backgroundColor = 'var(--accent-primary)';
-                e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = '0 4px 15px rgba(150, 51, 60, 0.3)';
+                if (!loading) {
+                  e.target.style.backgroundColor = 'var(--accent-primary)';
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = '0 4px 15px rgba(150, 51, 60, 0.3)';
+                }
               }}
             >
-              Submit Event Inquiry
+              {loading ? 'Submitting...' : 'Submit Event Inquiry'}
             </button>
           </form>
         </div>

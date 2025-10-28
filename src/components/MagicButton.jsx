@@ -212,6 +212,11 @@ const MagicButton = forwardRef(({
           ease: 'power2.out'
         });
       }
+
+      // Reset border glow
+      if (enableBorderGlow) {
+        element.style.setProperty('--glow-intensity', '0');
+      }
     };
 
     const handleMouseMove = e => {
@@ -327,10 +332,39 @@ const MagicButton = forwardRef(({
       if (onClick) onClick(e);
     };
 
+    // Touch event handlers for mobile
+    const handleTouchStart = (e) => {
+      // Set glow on touch start
+      if (enableBorderGlow) {
+        const rect = element.getBoundingClientRect();
+        const touch = e.touches[0];
+        const x = touch.clientX - rect.left;
+        const y = touch.clientY - rect.top;
+        const relativeX = (x / rect.width) * 100;
+        const relativeY = (y / rect.height) * 100;
+        element.style.setProperty('--glow-x', `${relativeX}%`);
+        element.style.setProperty('--glow-y', `${relativeY}%`);
+        element.style.setProperty('--glow-intensity', '1');
+      }
+    };
+
+    const handleTouchEnd = () => {
+      // Reset glow after touch ends
+      if (enableBorderGlow) {
+        // Delay slightly to show the effect
+        setTimeout(() => {
+          element.style.setProperty('--glow-intensity', '0');
+        }, 150);
+      }
+    };
+
     element.addEventListener('mouseenter', handleMouseEnter);
     element.addEventListener('mouseleave', handleMouseLeave);
     element.addEventListener('mousemove', handleMouseMove);
     element.addEventListener('click', handleClick);
+    element.addEventListener('touchstart', handleTouchStart, { passive: true });
+    element.addEventListener('touchend', handleTouchEnd, { passive: true });
+    element.addEventListener('touchcancel', handleTouchEnd, { passive: true });
 
     return () => {
       isHoveredRef.current = false;
@@ -341,6 +375,9 @@ const MagicButton = forwardRef(({
         element.removeEventListener('mouseleave', handleMouseLeave);
         element.removeEventListener('mousemove', handleMouseMove);
         element.removeEventListener('click', handleClick);
+        element.removeEventListener('touchstart', handleTouchStart);
+        element.removeEventListener('touchend', handleTouchEnd);
+        element.removeEventListener('touchcancel', handleTouchEnd);
       }
       
       // Clear all animations and particles

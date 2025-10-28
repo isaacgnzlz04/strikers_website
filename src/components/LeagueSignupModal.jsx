@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { getAllLeagues } from '../utils/standingsDB';
 import MagicButton from './MagicButton';
+import { useLeagueSignup } from '../hooks/useLeagueSignup';
 
 const LeagueSignupModal = ({ isOpen, onClose, leagueName = '' }) => {
   const [isMobile, setIsMobile] = useState(false);
@@ -115,21 +116,38 @@ const LeagueSignupModal = ({ isOpen, onClose, leagueName = '' }) => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const { signupForLeague, loading, error } = useLeagueSignup();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('League signup submitted:', formData);
-    alert(`Thank you for signing up for ${formData.league}! We will contact you shortly with league details and registration information.`);
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      league: '',
-      usbcMembership: '',
-      average: '',
-      teamName: '',
-      additionalInfo: '',
-    });
-    onClose();
+    
+    try {
+      await signupForLeague({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        league: formData.league,
+        teamName: formData.teamName,
+        average: formData.average,
+        usbcMembership: formData.usbcMembership,
+        additionalInfo: formData.additionalInfo,
+      });
+      
+      alert(`Thank you for signing up for ${formData.league}! We will contact you shortly with league details and registration information.`);
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        league: '',
+        usbcMembership: '',
+        average: '',
+        teamName: '',
+        additionalInfo: '',
+      });
+      onClose();
+    } catch (err) {
+      alert(err.message || 'Failed to submit league signup. Please try again.');
+    }
   };
 
   const handleClose = () => {
@@ -590,10 +608,11 @@ const LeagueSignupModal = ({ isOpen, onClose, leagueName = '' }) => {
             {/* Submit Button */}
             <MagicButton
               type="submit"
-              enableSpotlight={true}
-              enableBorderGlow={true}
-              enableTilt={true}
-              clickEffect={true}
+              disabled={loading}
+              enableSpotlight={!loading}
+              enableBorderGlow={!loading}
+              enableTilt={!loading}
+              clickEffect={!loading}
               spotlightRadius={220}
               glowColor="150, 51, 60"
               style={{
@@ -603,15 +622,16 @@ const LeagueSignupModal = ({ isOpen, onClose, leagueName = '' }) => {
                 fontSize: '1.05rem',
                 fontWeight: '700',
                 color: 'white',
-                backgroundColor: 'var(--accent-primary)',
+                backgroundColor: loading ? '#999' : 'var(--accent-primary)',
                 border: 'none',
                 borderRadius: '12px',
-                cursor: 'pointer',
+                cursor: loading ? 'not-allowed' : 'pointer',
                 transition: 'all 0.25s ease',
                 boxShadow: '0 6px 20px rgba(150, 51, 60, 0.35)',
+                opacity: loading ? 0.7 : 1,
               }}
             >
-              Sign Up for League
+              {loading ? 'Submitting...' : 'Sign Up for League'}
             </MagicButton>
           </form>
         </div>

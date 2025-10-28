@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
+import { useBooking } from '../hooks/useBooking';
 
 const BookingModal = ({ isOpen, onClose }) => {
   const [isMobile, setIsMobile] = useState(false);
@@ -116,22 +117,40 @@ const BookingModal = ({ isOpen, onClose }) => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const { createBooking, loading, error } = useBooking();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Booking submitted:', formData);
-    alert('Thank you for your booking request! We will contact you shortly to confirm your reservation.');
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      date: '',
-      time: '',
-      lanes: '1',
-      people: '',
-      eventType: 'casual',
-      specialRequests: '',
-    });
-    onClose();
+    
+    try {
+      await createBooking({
+        userName: formData.name,
+        userEmail: formData.email,
+        userPhone: formData.phone,
+        date: formData.date,
+        timeSlot: formData.time,
+        numberOfLanes: parseInt(formData.lanes),
+        numberOfPeople: parseInt(formData.people),
+        serviceName: formData.eventType === 'casual' ? 'Lane Rental' : 'Event Booking',
+        specialRequests: formData.specialRequests,
+      });
+      
+      alert('Thank you for your booking request! We will contact you shortly to confirm your reservation.');
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        date: '',
+        time: '',
+        lanes: '1',
+        people: '',
+        eventType: 'casual',
+        specialRequests: '',
+      });
+      onClose();
+    } catch (err) {
+      alert(err.message || 'Failed to submit booking. Please try again.');
+    }
   };
 
   if (!isOpen) return null;
@@ -637,6 +656,7 @@ const BookingModal = ({ isOpen, onClose }) => {
             {/* Submit Button */}
             <button
               type="submit"
+              disabled={loading}
               style={{
                 width: '100%',
                 padding: '16px',
@@ -644,23 +664,28 @@ const BookingModal = ({ isOpen, onClose }) => {
                 fontFamily: 'var(--font-body)',
                 fontWeight: '700',
                 color: 'var(--bg-primary)',
-                background: 'var(--accent-primary)',
+                background: loading ? '#999' : 'var(--accent-primary)',
                 border: 'none',
                 borderRadius: '50px',
-                cursor: 'pointer',
+                cursor: loading ? 'not-allowed' : 'pointer',
                 transition: 'all 0.3s ease',
                 boxShadow: '0 4px 15px rgba(var(--accent-primary-rgb), 0.3)',
+                opacity: loading ? 0.7 : 1,
               }}
               onMouseEnter={(e) => {
-                e.target.style.transform = 'translateY(-2px)';
-                e.target.style.boxShadow = '0 6px 20px rgba(var(--accent-primary-rgb), 0.5)';
+                if (!loading) {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = '0 6px 20px rgba(var(--accent-primary-rgb), 0.5)';
+                }
               }}
               onMouseLeave={(e) => {
-                e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = '0 4px 15px rgba(var(--accent-primary-rgb), 0.3)';
+                if (!loading) {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = '0 4px 15px rgba(var(--accent-primary-rgb), 0.3)';
+                }
               }}
             >
-              Confirm Booking
+              {loading ? 'Submitting...' : 'Confirm Booking'}
             </button>
           </form>
         </div>

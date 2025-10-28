@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import bowlingAlleyInfo from '../data/bowlingAlleyInfo';
+import { userService } from '../services/userService';
 
 const Footer = () => {
   const navigate = useNavigate();
@@ -19,11 +20,16 @@ const Footer = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const handleNewsletterSubmit = (e) => {
+  const handleNewsletterSubmit = async (e) => {
     e.preventDefault();
-    console.log('Newsletter signup:', email);
-    alert('Thank you for subscribing!');
-    setEmail('');
+    
+    try {
+      await userService.subscribeNewsletter(email);
+      alert('Thank you for subscribing!');
+      setEmail('');
+    } catch (err) {
+      alert(err.message || 'Failed to subscribe. Please try again.');
+    }
   };
 
   const handleNavClick = (e, route, scrollToSection = null) => {

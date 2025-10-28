@@ -3,6 +3,8 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Carousel from './ui/carousel';
 import MagicButton from './MagicButton';
+import { createSocialMediaFeed } from '../utils/socialMediaFeed';
+import socialMediaConfig, { validateConfig } from '../utils/socialMediaConfig';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -10,6 +12,9 @@ const GallerySection = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [activeFilter, setActiveFilter] = useState('All');
   const [showSubmitModal, setShowSubmitModal] = useState(false);
+  const [socialPosts, setSocialPosts] = useState([]);
+  const [isLoadingSocial, setIsLoadingSocial] = useState(false);
+  const [socialMediaEnabled, setSocialMediaEnabled] = useState(false);
   const badgeRef = useRef(null);
   const titleRef = useRef(null);
   const filtersRef = useRef(null);
@@ -25,6 +30,35 @@ const GallerySection = () => {
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Load social media posts
+  useEffect(() => {
+    const loadSocialPosts = async () => {
+      const configValidation = validateConfig();
+      
+      if (!configValidation.valid) {
+        console.log('Social media integration:', configValidation.message);
+        setSocialMediaEnabled(false);
+        return;
+      }
+
+      setSocialMediaEnabled(true);
+      setIsLoadingSocial(true);
+
+      try {
+        const feedManager = createSocialMediaFeed(socialMediaConfig);
+        const posts = await feedManager.fetchAllPosts();
+        setSocialPosts(posts);
+        console.log(`Loaded ${posts.length} social media posts`);
+      } catch (error) {
+        console.error('Error loading social media posts:', error);
+      } finally {
+        setIsLoadingSocial(false);
+      }
+    };
+
+    loadSocialPosts();
   }, []);
 
   useEffect(() => {
@@ -183,7 +217,7 @@ const GallerySection = () => {
 
   const filters = ['All', 'Parties', 'Leagues', 'Events', 'Fun Times'];
 
-  // Sample gallery images - will be replaced with actual user submissions
+  // Sample gallery images - shown when social media is disabled or as fallback
   const galleryImages = [
     {
       src: 'https://images.unsplash.com/photo-1604881988758-f76ad2f7aac1?w=800&h=600&fit=crop',
@@ -227,16 +261,31 @@ const GallerySection = () => {
     },
   ];
 
+  // Combine social media posts with sample images
+  const combinedImages = socialMediaEnabled && socialPosts.length > 0
+    ? [
+        ...socialPosts.map(post => ({
+          src: post.imageUrl,
+          alt: post.caption || 'Social media post',
+          category: post.category,
+          permalink: post.permalink,
+          source: post.source,
+        })),
+        ...galleryImages, // Include sample images as fallback
+      ]
+    : galleryImages;
+
   const filteredImages =
     activeFilter === 'All'
-      ? galleryImages
-      : galleryImages.filter((img) => img.category === activeFilter);
+      ? combinedImages
+      : combinedImages.filter((img) => img.category === activeFilter);
 
   // Convert to carousel slides format
   const carouselSlides = filteredImages.map((img) => ({
     src: img.src,
-    title: img.category,
-    button: 'View Full Size'
+    title: img.source ? `${img.category} (from ${img.source})` : img.category,
+    button: img.permalink ? 'View on Social Media' : 'View Full Size',
+    link: img.permalink,
   }));
 
   const SubmitModal = () => (
@@ -585,6 +634,11 @@ const GallerySection = () => {
             }}
           >
             See what makes Mainlee Strikers special through the eyes of our community
+            {socialMediaEnabled && (
+              <span style={{ display: 'block', marginTop: '0.5rem', fontSize: '0.9rem', color: 'var(--accent-primary)' }}>
+                📱 Now featuring posts from Instagram & Facebook with #MainleeStrikers
+              </span>
+            )}
           </p>
 
           {/* Submit Photo Button */}
@@ -644,7 +698,28 @@ const GallerySection = () => {
 
         {/* Gallery */}
         <div style={{ marginTop: '4rem', marginBottom: '2rem' }}>
-          <Carousel slides={carouselSlides} />
+          {isLoadingSocial ? (
+            <div style={{ textAlign: 'center', padding: '4rem 0' }}>
+              <div style={{
+                display: 'inline-block',
+                width: '50px',
+                height: '50px',
+                border: '4px solid var(--accent-primary)',
+                borderTopColor: 'transparent',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite'
+              }} />
+              <p style={{
+                fontFamily: 'var(--font-body)',
+                color: 'var(--text-secondary)',
+                marginTop: '1rem'
+              }}>
+                Loading social media posts...
+              </p>
+            </div>
+          ) : (
+            <Carousel slides={carouselSlides} />
+          )}
         </div>
       </div>
 

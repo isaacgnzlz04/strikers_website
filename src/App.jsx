@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { CardNav, ThemeToggle, FluidBackground, Footer, BookingModal, LeagueSignupModal } from './components';
 import EventModal from './components/EventModal';
 import StandingsPage from './components/StandingsPage';
+import HonorScoresPage from './components/HonorScoresPage';
 import HomePage from './pages/HomePage';
 import LeaguePage from './pages/LeaguePage';
 import EventsPackagesPage from './pages/EventsPackagesPage';
@@ -15,8 +16,23 @@ function App() {
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [selectedLeague, setSelectedLeague] = useState('');
   const [showStandings, setShowStandings] = useState(false);
+  const [showHonorScores, setShowHonorScores] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const shouldScrollToTopRef = useRef(false);
+
+  // Effect to scroll to top when navigating to home and flag is set
+  useEffect(() => {
+    if (location.pathname === '/' && shouldScrollToTopRef.current) {
+      // Use setTimeout with requestAnimationFrame to ensure DOM is fully ready
+      setTimeout(() => {
+        requestAnimationFrame(() => {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      }, 100);
+      shouldScrollToTopRef.current = false;
+    }
+  }, [location.pathname]);
 
   const openLeagueSignup = (leagueName = '') => {
     setSelectedLeague(leagueName);
@@ -210,11 +226,9 @@ function App() {
             // Already on home page, scroll to top
             window.scrollTo({ top: 0, behavior: 'smooth' });
           } else {
-            // Navigate to home page, then scroll to top
+            // Set flag to scroll to top after navigation
+            shouldScrollToTopRef.current = true;
             navigate('/');
-            setTimeout(() => {
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }, 100);
           }
         }}
         items={navItems}
@@ -225,7 +239,7 @@ function App() {
         ease="power3.out"
         onButtonClick={() => setIsBookingModalOpen(true)}
         currentPath={location.pathname}
-        modalOpen={isBookingModalOpen || isLeagueSignupModalOpen || isEventModalOpen || showStandings}
+        modalOpen={isBookingModalOpen || isLeagueSignupModalOpen || isEventModalOpen || showStandings || showHonorScores}
         style={{ 
           display: (isBookingModalOpen || isLeagueSignupModalOpen || isEventModalOpen) ? 'none' : 'block'
         }}
@@ -260,6 +274,7 @@ function App() {
             <LeaguePage 
               openLeagueSignup={openLeagueSignup} 
               openStandings={() => setShowStandings(true)} 
+              openHonorScores={() => setShowHonorScores(true)}
             />
           </div>
         } />
@@ -294,6 +309,13 @@ function App() {
       {showStandings && (
         <StandingsPage 
           onClose={() => setShowStandings(false)}
+        />
+      )}
+
+      {/* Honor Scores Modal */}
+      {showHonorScores && (
+        <HonorScoresPage 
+          onClose={() => setShowHonorScores(false)}
         />
       )}
     </div>

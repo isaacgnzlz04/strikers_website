@@ -3,6 +3,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import MagicButton from './MagicButton';
 import bowlingAlleyInfo from '../data/bowlingAlleyInfo';
+import { useContactForm } from '../hooks/useContactForm';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -134,12 +135,25 @@ const ContactSection = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const { submitForm, loading, error, reset } = useContactForm();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log('Form submitted:', formData);
-    alert('Thank you for contacting us! We\'ll get back to you soon.');
-    setFormData({ name: '', email: '', phone: '', message: '' });
+    
+    try {
+      await submitForm({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        message: formData.message,
+        subject: 'General'
+      });
+      
+      alert('Thank you for contacting us! We\'ll get back to you soon.');
+      setFormData({ name: '', email: '', phone: '', message: '' });
+    } catch (err) {
+      alert(err.message || 'Failed to submit contact form. Please try again.');
+    }
   };
 
   return (
@@ -365,11 +379,12 @@ const ContactSection = () => {
 
               <MagicButton
                 type="submit"
-                enableSpotlight={true}
-                enableBorderGlow={true}
-                enableTilt={true}
-                enableMagnetism={true}
-                clickEffect={true}
+                disabled={loading}
+                enableSpotlight={!loading}
+                enableBorderGlow={!loading}
+                enableTilt={!loading}
+                enableMagnetism={!loading}
+                clickEffect={!loading}
                 spotlightRadius={300}
                 glowColor="150, 51, 60"
                 style={{
@@ -377,15 +392,16 @@ const ContactSection = () => {
                   fontSize: '1.1rem',
                   fontWeight: '700',
                   padding: '1.2rem 3rem',
-                  backgroundColor: 'var(--accent-primary)',
+                  backgroundColor: loading ? '#999' : 'var(--accent-primary)',
                   color: '#ffffff',
                   border: 'none',
                   borderRadius: '50px',
-                  cursor: 'pointer',
+                  cursor: loading ? 'not-allowed' : 'pointer',
                   width: '100%',
+                  opacity: loading ? 0.7 : 1,
                 }}
               >
-                Send Message
+                {loading ? 'Sending...' : 'Send Message'}
               </MagicButton>
             </form>
           </div>

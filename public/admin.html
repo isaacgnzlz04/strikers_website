@@ -567,6 +567,7 @@
         app.innerHTML = `
           <a href="/" class="back-button">← Back to Site</a>
           <a href="/admin-leagues.html" class="back-button" style="background: #96333C; border-color: #96333C; color: white;">⚙️ Manage Leagues</a>
+          <button class="back-button" onclick="showHonorScoresManager()" style="background: #96333C; border-color: #96333C; color: white; border: none; cursor: pointer;">🏆 Manage Honor Scores</button>
           <h1>Update League Standings</h1>
           <p class="subtitle">Upload PDF standings for your leagues - Unlimited weeks supported</p>
           
@@ -905,6 +906,137 @@
         }
       }
     }
+
+    function showHonorScoresManager() {
+      const app = document.getElementById('app');
+      
+      // Load existing honor scores
+      let honorScores = [];
+      try {
+        const saved = localStorage.getItem('honorScores');
+        if (saved) {
+          honorScores = JSON.parse(saved);
+        }
+      } catch (e) {
+        honorScores = [];
+      }
+
+      app.innerHTML = `
+        <button class="back-button" onclick="location.reload()">← Back to Standings</button>
+        <h1>🏆 Manage Honor Scores</h1>
+        <p class="subtitle">Add or remove honor scores for the entire bowling alley</p>
+
+        <div class="upload-box" style="margin-bottom: 30px;">
+          <h3>Add New Honor Score</h3>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+            <input type="text" id="honorName" placeholder="Bowler Name" style="width: 100%;">
+            <input type="number" id="honorScore" placeholder="Score (e.g., 300)" style="width: 100%;">
+            <select id="honorType" style="width: 100%; padding: 15px; background: #1a1a1a; border: 2px solid #444; border-radius: 10px; color: #fff; font-size: 1rem;">
+              <option value="Game">Game</option>
+              <option value="Series">Series</option>
+            </select>
+            <input type="date" id="honorDate" style="width: 100%;">
+          </div>
+          <button onclick="addHonorScore()" style="width: auto; padding: 12px 30px;">➕ Add Honor Score</button>
+        </div>
+
+        <div class="upload-box">
+          <h3>Current Honor Scores (${honorScores.length})</h3>
+          ${honorScores.length === 0 ? `
+            <p style="text-align: center; color: #888; padding: 40px 20px;">
+              No honor scores yet. Add your first one above!
+            </p>
+          ` : `
+            <table style="width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr style="background: #1a1a1a;">
+                  <th style="padding: 12px; text-align: left; color: #fff; border-bottom: 2px solid #96333C;">Name</th>
+                  <th style="padding: 12px; text-align: center; color: #fff; border-bottom: 2px solid #96333C;">Score</th>
+                  <th style="padding: 12px; text-align: center; color: #fff; border-bottom: 2px solid #96333C;">Type</th>
+                  <th style="padding: 12px; text-align: center; color: #fff; border-bottom: 2px solid #96333C;">Date</th>
+                  <th style="padding: 12px; text-align: center; color: #fff; border-bottom: 2px solid #96333C;">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${honorScores.map((entry, index) => `
+                  <tr style="background: ${index % 2 === 0 ? '#2a2a2a' : 'transparent'};">
+                    <td style="padding: 10px; color: #fff;">${entry.name}</td>
+                    <td style="padding: 10px; text-align: center; color: #96333C; font-weight: 700; font-size: 1.1rem;">${entry.score}</td>
+                    <td style="padding: 10px; text-align: center; color: #888;">${entry.type}</td>
+                    <td style="padding: 10px; text-align: center; color: #888;">${entry.date || 'N/A'}</td>
+                    <td style="padding: 10px; text-align: center;">
+                      <button onclick="removeHonorScore(${entry.id})" style="width: auto; padding: 6px 12px; background: #FF6B6B; font-size: 0.9rem;">Remove</button>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `}
+        </div>
+      `;
+    }
+
+    window.addHonorScore = function() {
+      const name = document.getElementById('honorName').value.trim();
+      const score = document.getElementById('honorScore').value.trim();
+      const type = document.getElementById('honorType').value;
+      const date = document.getElementById('honorDate').value;
+
+      if (!name || !score) {
+        alert('Please enter both name and score!');
+        return;
+      }
+
+      // Load existing scores
+      let honorScores = [];
+      try {
+        const saved = localStorage.getItem('honorScores');
+        if (saved) {
+          honorScores = JSON.parse(saved);
+        }
+      } catch (e) {
+        honorScores = [];
+      }
+
+      // Add new score
+      const newEntry = {
+        id: Date.now(),
+        name: name,
+        score: score,
+        type: type,
+        date: date || new Date().toISOString().split('T')[0]
+      };
+
+      honorScores.push(newEntry);
+      localStorage.setItem('honorScores', JSON.stringify(honorScores));
+
+      // Reload the manager
+      showHonorScoresManager();
+    };
+
+    window.removeHonorScore = function(id) {
+      if (!confirm('Are you sure you want to remove this honor score?')) {
+        return;
+      }
+
+      // Load existing scores
+      let honorScores = [];
+      try {
+        const saved = localStorage.getItem('honorScores');
+        if (saved) {
+          honorScores = JSON.parse(saved);
+        }
+      } catch (e) {
+        honorScores = [];
+      }
+
+      // Remove the entry
+      honorScores = honorScores.filter(entry => entry.id !== id);
+      localStorage.setItem('honorScores', JSON.stringify(honorScores));
+
+      // Reload the manager
+      showHonorScoresManager();
+    };
 
     function showStatus(message, type) {
       const statusEl = document.getElementById('status');
