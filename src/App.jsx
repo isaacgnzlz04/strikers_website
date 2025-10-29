@@ -9,6 +9,7 @@ import LeaguePage from './pages/LeaguePage';
 import EventsPackagesPage from './pages/EventsPackagesPage';
 import AboutPage from './pages/AboutPage';
 import logo from './assets/logo.svg';
+import { Analytics } from '@vercel/analytics/react';
 
 function App() {
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
@@ -318,6 +319,9 @@ function App() {
           onClose={() => setShowHonorScores(false)}
         />
       )}
+
+      {/* Vercel Analytics */}
+      <Analytics />
     </div>
   );
 }
