@@ -32,17 +32,43 @@ export default async function handler(req, res) {
     });
   }
 
-  const { userEmail, userName, userPhone, serviceId, serviceName, date, timeSlot, notes } = req.body;
+  const { userEmail, userName, userPhone, serviceId, serviceName, date, timeSlot, notes, numberOfLanes, numberOfPeople, specialRequests } = req.body;
 
-  // Validate required fields
-  if (!userEmail || !userName || !serviceId || !date || !timeSlot) {
+  // Validate required fields (serviceId is now optional)
+  if (!userEmail || !userName || !date || !timeSlot) {
     return res.status(400).json({ 
       error: 'Missing required fields',
-      required: ['userEmail', 'userName', 'serviceId', 'date', 'timeSlot']
+      required: ['userEmail', 'userName', 'date', 'timeSlot']
     });
   }
 
   try {
+    // Prepare fields for Airtable
+    const fields = {
+      'User Email': userEmail,
+      'User Name': userName,
+      'User Phone': userPhone || '',
+      'Service Name': serviceName || 'Lane Rental',
+      'Date': date,
+      'Time Slot': timeSlot,
+      'Status': 'Pending',
+      'Payment Status': 'Pending',
+      'Notes': notes || specialRequests || ''
+    };
+
+    // Add optional fields if provided
+    if (numberOfLanes) {
+      fields['Number of Lanes'] = parseInt(numberOfLanes);
+    }
+    if (numberOfPeople) {
+      fields['Number of People'] = parseInt(numberOfPeople);
+    }
+    
+    // Only add Service linked record if serviceId is provided
+    if (serviceId) {
+      fields['Service'] = [serviceId];
+    }
+
     // Create booking in Airtable
     const airtableResponse = await fetch(
       `https://api.airtable.com/v0/${process.env.AIRTABLE_BASE_ID}/Bookings`,
@@ -52,20 +78,7 @@ export default async function handler(req, res) {
           'Authorization': `Bearer ${process.env.AIRTABLE_API_KEY}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          fields: {
-            'User Email': userEmail,
-            'User Name': userName,
-            'User Phone': userPhone || '',
-            'Service': [serviceId], // Linked record
-            'Service Name': serviceName,
-            'Date': date,
-            'Time Slot': timeSlot,
-            'Status': 'Pending',
-            'Payment Status': 'Pending',
-            'Notes': notes || ''
-          }
-        })
+        body: JSON.stringify({ fields })
       }
     );
 
@@ -90,9 +103,13 @@ export default async function handler(req, res) {
             bookingId: booking.id,
             userEmail,
             userName,
-            serviceName,
+            userPhone: userPhone || '',
+            serviceName: serviceName || 'Lane Rental',
             date,
             timeSlot,
+            numberOfLanes: numberOfLanes || '',
+            numberOfPeople: numberOfPeople || '',
+            specialRequests: specialRequests || notes || '',
             status: 'Pending'
           })
         });
