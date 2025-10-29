@@ -56,19 +56,32 @@ const DEFAULT_LEAGUES = [
 
 export const leagueService = {
   /**
-   * Get all leagues from Airtable
-   * @param {boolean} activeOnly - If true, only return active leagues
+   * Get all leagues from secure API endpoint
+   * @param {boolean} activeOnly - If true, only return active leagues (currently always fetches active)
    * @returns {Promise<Array>} Array of league records
    */
   async getAllLeagues(activeOnly = false) {
     try {
-      const filterFormula = activeOnly ? `{Active} = TRUE()` : undefined;
+      console.log('[League Service] Fetching leagues from secure API');
       
-      const leagues = await fetchRecords(TABLES.LEAGUES, {
-        filterByFormula: filterFormula,
-        sort: [{ field: 'Day', direction: 'asc' }],
-        useCache: true
+      const response = await fetch('/api/leagues/list', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch leagues: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error('API returned unsuccessful response');
+      }
+
+      const leagues = data.leagues || [];
 
       // Map Airtable fields to expected format
       return leagues.map(league => ({
@@ -87,7 +100,7 @@ export const leagueService = {
         photo: league['Photo']?.[0]?.url || null
       }));
     } catch (error) {
-      console.error('Failed to fetch leagues from Airtable:', error);
+      console.error('Failed to fetch leagues from API:', error);
       // Return default leagues as fallback
       return DEFAULT_LEAGUES;
     }
