@@ -3,7 +3,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import LeagueCard from './LeagueCard';
 import MagicButton from './MagicButton';
-import { getAllLeagues, DEFAULT_LEAGUES_DATA } from '../utils/standingsDB';
+import { leagueService } from '../services/leagueService';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -26,16 +26,15 @@ const FeaturesSection = ({ openLeagueSignup, openStandings }) => {
   useEffect(() => {
     const loadLeagues = async () => {
       try {
-        const allLeagues = await getAllLeagues();
-        const activeLeagues = (allLeagues || []).filter((league) => league?.active);
+        const activeLeagues = await leagueService.getAllLeagues(true);
 
         if (activeLeagues.length > 0) {
           setLeagues(activeLeagues);
         } else {
-          setLeagues(DEFAULT_LEAGUES_DATA.filter((league) => league?.active));
+          setLeagues(leagueService.getDefaultLeagues());
         }
       } catch (error) {
-        setLeagues(DEFAULT_LEAGUES_DATA.filter((league) => league?.active));
+        setLeagues(leagueService.getDefaultLeagues());
       }
     };
 

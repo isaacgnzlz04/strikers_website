@@ -245,5 +245,7 @@ export const TABLES = {
   WAITLIST: 'Waitlist',
   LEAGUE_SIGNUPS: 'League Signups',
   EVENT_BOOKINGS: 'Event Bookings',
+  LEAGUE_WEEKS: 'League Weeks',
+  LEAGUE_STANDINGS: 'League Standings',
   SETTINGS: 'Settings/Configuration'
 };

@@ -21,6 +21,17 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  // Early validation: Check if request body exists and is not empty
+  if (!req.body || Object.keys(req.body).length === 0) {
+    console.warn('Event booking attempt with empty body', {
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
+      userAgent: req.headers['user-agent']
+    });
+    return res.status(400).json({ 
+      error: 'Request body is required'
+    });
+  }
+
   const { 
     name, 
     email, 
@@ -31,7 +42,7 @@ export default async function handler(req, res) {
     eventTime, 
     guests, 
     specialRequests 
-  } = req.body || {};
+  } = req.body;
 
   // Validate required fields
   if (!name || !email || !eventType || !eventDate || !guests) {

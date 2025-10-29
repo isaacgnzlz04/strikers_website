@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
-import { getAllLeagues } from '../utils/standingsDB';
+import { leagueService } from '../services/leagueService';
 import MagicButton from './MagicButton';
 import { useLeagueSignup } from '../hooks/useLeagueSignup';
 
@@ -35,8 +35,7 @@ const LeagueSignupModal = ({ isOpen, onClose, leagueName = '' }) => {
 
   useEffect(() => {
     const loadLeagues = async () => {
-      const allLeagues = await getAllLeagues();
-      const activeLeagues = allLeagues.filter(l => l.active);
+      const activeLeagues = await leagueService.getAllLeagues(true);
       setLeagues(activeLeagues);
     };
     loadLeagues();

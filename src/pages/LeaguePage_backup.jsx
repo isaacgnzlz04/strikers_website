@@ -4,7 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import LeagueCard from '../components/LeagueCard';
 import MagicButton from '../components/MagicButton';
 import TiltedCard from '../components/TiltedCard';
-import { getAllLeagues } from '../utils/standingsDB';
+import { leagueService } from '../services/leagueService';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -48,8 +48,7 @@ const LeaguePage = ({ openLeagueSignup, openStandings }) => {
 
   useEffect(() => {
     const loadLeagues = async () => {
-      const allLeagues = await getAllLeagues();
-      const activeLeagues = allLeagues.filter(l => l.active);
+      const activeLeagues = await leagueService.getAllLeagues(true);
       setLeagues(activeLeagues);
     };
     loadLeagues();

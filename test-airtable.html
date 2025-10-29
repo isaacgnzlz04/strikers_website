@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Airtable Connection Test</title>
+  <style>
+    body {
+      font-family: monospace;
+      padding: 20px;
+      background: #1a1a1a;
+      color: #fff;
+    }
+    .result {
+      background: #2d2d2d;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #444;
+    }
+    .success { border-color: #4caf50; }
+    .error { border-color: #f44336; }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    pre {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔍 Airtable Connection Test</h1>
+  <p>This will test your Airtable connection and show what data is available.</p>
+  
+  <button onclick="testLeagues()">1. Test Leagues</button>
+  <button onclick="testLeagueWeeks()">2. Test League Weeks</button>
+  <button onclick="clearCache()">Clear Cache</button>
+  
+  <div id="results"></div>
+
+  <script type="module">
+    import { fetchRecords, TABLES, clearAirtableCache } from './src/lib/airtable.js';
+    
+    window.testLeagues = async function() {
+      const results = document.getElementById('results');
+      results.innerHTML = '<div class="result">Testing Leagues table...</div>';
+      
+      try {
+        const leagues = await fetchRecords(TABLES.LEAGUES);
+        const activeLeagues = leagues.filter(l => l.Active);
+        
+        results.innerHTML = `
+          <div class="result success">
+            <h3>✅ Leagues Found: ${leagues.length} total, ${activeLeagues.length} active</h3>
+            <pre>${JSON.stringify(leagues.map(l => ({
+              name: l['League Name'],
+              active: l['Active'],
+              day: l['Day']
+            })), null, 2)}</pre>
+          </div>
+        `;
+      } catch (error) {
+        results.innerHTML = `
+          <div class="result error">
+            <h3>❌ Error Loading Leagues</h3>
+            <pre>${error.message}</pre>
+          </div>
+        `;
+      }
+    };
+    
+    window.testLeagueWeeks = async function() {
+      const results = document.getElementById('results');
+      results.innerHTML = '<div class="result">Testing League Weeks table...</div>';
+      
+      try {
+        const weeks = await fetchRecords(TABLES.LEAGUE_WEEKS);
+        
+        if (weeks.length === 0) {
+          results.innerHTML = `
+            <div class="result error">
+              <h3>⚠️ No League Weeks Found</h3>
+              <p>You need to add records to the League Weeks table in Airtable.</p>
+            </div>
+          `;
+        } else {
+          results.innerHTML = `
+            <div class="result success">
+              <h3>✅ League Weeks Found: ${weeks.length}</h3>
+              <pre>${JSON.stringify(weeks.map(w => ({
+                leagueName: w['League Name'],
+                weekNumber: w['Week Number'],
+                hasPDF: !!(w['PDF File'] || w['PDF URL']),
+                pdfUrl: w['PDF URL'] || w['PDF File']?.[0]?.url || 'No PDF'
+              })), null, 2)}</pre>
+            </div>
+          `;
+        }
+      } catch (error) {
+        results.innerHTML = `
+          <div class="result error">
+            <h3>❌ Error Loading League Weeks</h3>
+            <pre>${error.message}</pre>
+            <p>Make sure you created the "League Weeks" table in Airtable with the exact name.</p>
+          </div>
+        `;
+      }
+    };
+    
+    window.clearCache = function() {
+      clearAirtableCache();
+      document.getElementById('results').innerHTML = `
+        <div class="result success">
+          <h3>✅ Cache Cleared</h3>
+          <p>All cached Airtable data has been removed. Now test again.</p>
+        </div>
+      `;
+    };
+  </script>
+</body>
+</html>

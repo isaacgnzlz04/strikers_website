@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import MagicButton from './MagicButton';
-import { getWeeksForLeague, getPDF, getAllLeagues } from '../utils/standingsDB';
+import { leagueService } from '../services/leagueService';
 import './StandingsPage.css';
 
 const StandingsPage = ({ onClose }) => {
@@ -22,14 +22,15 @@ const StandingsPage = ({ onClose }) => {
   const downloadPDF = async () => {
     if (!selectedWeek) return;
     
-    const pdfRecord = await getPDF(selectedLeague, selectedWeek);
+    const pdfRecord = await leagueService.getPDF(selectedLeague, selectedWeek);
     if (!pdfRecord || !pdfRecord.pdfData) return;
 
     try {
-      // Create a temporary link and trigger download
+      // Open the PDF URL directly for download
       const link = document.createElement('a');
       link.href = pdfRecord.pdfData;
       link.download = pdfFileName || `${selectedLeague}-${selectedWeek}-standings.pdf`;
+      link.target = '_blank';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -43,27 +44,12 @@ const StandingsPage = ({ onClose }) => {
   const viewPDF = async () => {
     if (!selectedWeek) return;
     
-    const pdfRecord = await getPDF(selectedLeague, selectedWeek);
+    const pdfRecord = await leagueService.getPDF(selectedLeague, selectedWeek);
     if (!pdfRecord || !pdfRecord.pdfData) return;
 
     try {
-      // Convert base64 to blob
-      const base64String = pdfRecord.pdfData.split(',')[1];
-      const binaryString = window.atob(base64String);
-      const bytes = new Uint8Array(binaryString.length);
-      
-      for (let i = 0; i < binaryString.length; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-      }
-      
-      const blob = new Blob([bytes], { type: 'application/pdf' });
-      const blobUrl = URL.createObjectURL(blob);
-      
-      // Open in new window
-      window.open(blobUrl, '_blank');
-      
-      // Clean up after 1 minute
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+      // Open PDF URL in new window
+      window.open(pdfRecord.pdfData, '_blank');
     } catch (error) {
       console.error('View error:', error);
       alert('Error opening PDF. Please try downloading instead.');
@@ -73,13 +59,12 @@ const StandingsPage = ({ onClose }) => {
   useEffect(() => {
     // Load leagues on mount
     const loadLeagues = async () => {
-      const allLeagues = await getAllLeagues();
-      const activeLeagues = allLeagues.filter(l => l.active);
-      setLeagues(activeLeagues);
+      const allLeagues = await leagueService.getAllLeagues(true); // Get only active leagues
+      setLeagues(allLeagues);
       
       // Auto-select first league
-      if (activeLeagues.length > 0 && !selectedLeague) {
-        setSelectedLeague(activeLeagues[0].name);
+      if (allLeagues.length > 0 && !selectedLeague) {
+        setSelectedLeague(allLeagues[0].name);
       }
     };
     loadLeagues();
@@ -133,13 +118,13 @@ const StandingsPage = ({ onClose }) => {
     if (!selectedLeague) return;
     
     const loadWeeks = async () => {
-      const weeks = await getWeeksForLeague(selectedLeague);
+      const weeks = await leagueService.getWeeksForLeague(selectedLeague);
       setAvailableWeeks(weeks);
       
       // Auto-select first week or most recent
       if (weeks.length > 0) {
         const mostRecent = weeks[weeks.length - 1];
-        setSelectedWeek(mostRecent.week);
+        setSelectedWeek(mostRecent.weekNumber);
       } else {
         setSelectedWeek(null);
         setHasPDF(false);
@@ -160,8 +145,8 @@ const StandingsPage = ({ onClose }) => {
   useEffect(() => {
     const checkPDF = async () => {
       if (selectedWeek) {
-        const pdfRecord = await getPDF(selectedLeague, selectedWeek);
-        const weekData = availableWeeks.find(w => w.week === selectedWeek);
+        const pdfRecord = await leagueService.getPDF(selectedLeague, selectedWeek);
+        const weekData = availableWeeks.find(w => w.weekNumber === selectedWeek);
         setHasPDF(!!pdfRecord);
         setPdfFileName(weekData?.fileName || null);
       } else {

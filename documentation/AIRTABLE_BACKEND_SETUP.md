@@ -16,7 +16,7 @@ This document provides complete instructions for setting up your Airtable backen
 
 ## Airtable Base Structure
 
-Create a new Airtable base called **"Strikers Website Backend"** with the following **18 tables**:
+Create a new Airtable base called **"Strikers Website Backend"** with the following **20 tables**:
 
 ### 1. Users/Members
 
@@ -222,7 +222,7 @@ Create a new Airtable base called **"Strikers Website Backend"** with the follow
 | Active | Checkbox | Currently offered |
 | Display Order | Number | Sorting order |
 
-### 13. Gallery/Media
+### 14. Gallery/Media
 
 | Field Name | Field Type | Options/Notes |
 |------------|-----------|---------------|
@@ -235,7 +235,7 @@ Create a new Airtable base called **"Strikers Website Backend"** with the follow
 | Display on Website | Checkbox | Whether to show |
 | Display Order | Number | Sorting order |
 
-### 14. Waitlist
+### 15. Waitlist
 
 | Field Name | Field Type | Options/Notes |
 |------------|-----------|---------------|
@@ -247,6 +247,87 @@ Create a new Airtable base called **"Strikers Website Backend"** with the follow
 | Priority | Number | 1-5, higher = more urgent |
 | Status | Single select | Options: Active, Notified, Converted, Cancelled |
 | Added Date | Created time | Auto-populated |
+
+### 16. League Signups
+
+| Field Name | Field Type | Options/Notes |
+|------------|-----------|---------------|
+| Signup ID | Auto-number | Primary field |
+| Name | Single line text | Required |
+| Email | Email | Required |
+| Phone | Phone number | Optional |
+| League | Linked record | Link to Leagues table (Required) |
+| League Name | Single line text | For display/backward compatibility |
+| USBC Membership | Single line text | Membership number |
+| Average Score | Number | Bowler's average |
+| Team Name | Single line text | If joining with a team |
+| Additional Info | Long text | Any special requests/notes |
+| Status | Single select | Options: Pending, Confirmed, Waitlist, Cancelled |
+| Registration Date | Date | Auto-populated |
+
+### 17. Event Bookings
+
+| Field Name | Field Type | Options/Notes |
+|------------|-----------|---------------|
+| Booking ID | Auto-number | Primary field |
+| Contact Name | Single line text | Required |
+| Email | Email | Required |
+| Phone | Phone number | Optional |
+| Company | Single line text | For corporate events |
+| Event Type | Single select | Options: Birthday, Corporate, Fundraiser, Team Building, Other |
+| Event Date | Date | Required |
+| Event Time | Single line text | Preferred time |
+| Number of Guests | Number | Required |
+| Special Requests | Long text | Food, decorations, etc. |
+| Status | Single select | Options: Pending, Confirmed, Cancelled, Completed |
+| Inquiry Date | Date | Auto-populated |
+
+### 18. League Weeks
+
+| Field Name | Field Type | Options/Notes |
+|------------|-----------|---------------|
+| Week ID | Auto-number | Primary field |
+| League | Linked record | Link to Leagues table (Required) |
+| League Name | Single line text | For display/queries |
+| Week Number | Number | Week number (e.g., 1, 2, 3...) |
+| Week Date | Date | Date of the week |
+| PDF File | Attachment | Standings PDF file |
+| PDF URL | URL | Direct link to PDF if hosted externally |
+| Notes | Long text | Any notes for this week |
+| Created Date | Created time | Auto-populated |
+| Last Modified | Last modified time | Auto-populated |
+
+### 19. League Standings
+
+| Field Name | Field Type | Options/Notes |
+|------------|-----------|---------------|
+| Standing ID | Auto-number | Primary field |
+| League | Linked record | Link to Leagues table (Required) |
+| League Name | Single line text | For display/queries |
+| Week | Linked record | Link to League Weeks table |
+| Week Number | Number | Week number for this standing |
+| Team Name | Single line text | Required |
+| Team Position | Number | Current position/rank |
+| Games Played | Number | Total games played |
+| Wins | Number | Total wins |
+| Losses | Number | Total losses |
+| Points | Number | Total points |
+| Pins | Number | Total pins |
+| High Game | Number | Highest game score |
+| High Series | Number | Highest series score |
+| Average | Number | Team/player average |
+| Notes | Long text | Additional information |
+| Last Updated | Last modified time | Auto-populated |
+
+### 20. Settings/Configuration
+
+| Field Name | Field Type | Options/Notes |
+|------------|-----------|---------------|
+| Setting Key | Single line text | Primary field (unique) |
+| Setting Value | Long text | The actual value |
+| Category | Single select | Options: General, Email, Booking, Payments, Social |
+| Description | Long text | What this setting does |
+| Last Modified | Last modified time | Auto-populated |
 
 ### 15. League Signups
 
