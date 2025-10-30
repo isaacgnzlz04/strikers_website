@@ -20,3 +20,4 @@ export { default as CardNav } from './CardNav';
 export { default as TiltedCard } from './TiltedCard';
 export { default as MagicButton } from './MagicButton';
 export { default as GradualBlur } from './GradualBlur';
+export { default as SEO } from './SEO';

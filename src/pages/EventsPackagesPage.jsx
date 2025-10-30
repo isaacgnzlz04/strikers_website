@@ -4,13 +4,22 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import TiltedCard from '../components/TiltedCard';
 import MagicButton from '../components/MagicButton';
 import GradualBlur from '../components/GradualBlur';
+import SEO from '../components/SEO';
+import { generateEventSchema } from '../utils/schema';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const EventsPackagesPage = ({ openBooking }) => {
+const EventsPackagesPage = ({ openBooking, onModalChange }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [activePackage, setActivePackage] = useState(null);
+
+  // Notify parent when modal state changes
+  useEffect(() => {
+    if (onModalChange) {
+      onModalChange(activePackage !== null);
+    }
+  }, [activePackage, onModalChange]);
 
   // Refs for animations
   const badgeRef = useRef(null);
@@ -349,8 +358,23 @@ const EventsPackagesPage = ({ openBooking }) => {
     },
   ];
 
+  // Schema for party/event packages
+  const eventPackageSchema = generateEventSchema(
+    "Birthday Parties & Corporate Events at Mainlee Strikers",
+    "Complete party packages for birthdays, corporate team building, group events, and fundraisers. Includes bowling lanes, food, arcade games, and dedicated party space.",
+    "199"
+  );
+
   return (
     <div style={{ minHeight: '100vh', paddingTop: '80px' }}>
+      <SEO
+        title="Party Packages & Corporate Events - Birthday Parties, Team Building"
+        description="Book birthday parties, corporate events & group celebrations at Mainlee Strikers in Russellville, AR. Complete packages from $199 with bowling, food, arcade & private party rooms. Perfect for kids parties, team building & large groups!"
+        keywords="birthday party venue Russellville AR, corporate events Russellville, bowling party packages, team building activities Arkansas, kids birthday party, adult party venue, group event space, private party rooms Russellville, company events Arkansas, fundraiser venue, bowling party prices"
+        canonical="https://www.mainleestrikers.com/events"
+        schema={eventPackageSchema}
+      />
+      
       {/* Hero Section */}
       <section
         style={{
@@ -941,29 +965,95 @@ const PackageCard = ({ package: pkg, isMobile, cardRef, openBooking, onViewDetai
 
 // Package Details Modal
 const PackageModal = ({ package: pkg, isMobile, onClose, openBooking }) => {
+  const modalContentRef = useRef(null);
+  const backdropRef = useRef(null);
+  const contentRef = useRef(null);
+
+  useEffect(() => {
+    // Prevent body scroll when modal is open
+    document.body.style.overflow = 'hidden';
+    
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, []);
+
+  // Animation effect when modal opens
+  useEffect(() => {
+    const tl = gsap.timeline();
+
+    // Fade in backdrop
+    tl.fromTo(
+      backdropRef.current,
+      { opacity: 0 },
+      { opacity: 1, duration: 0.3, ease: 'power2.out' }
+    );
+
+    // Modal entrance - scale and slide
+    tl.fromTo(
+      modalContentRef.current,
+      { scale: 0.8, opacity: 0, y: -50 },
+      { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: 'back.out(1.7)' },
+      '-=0.15'
+    );
+
+    // Content fade in
+    if (contentRef.current) {
+      tl.fromTo(
+        contentRef.current,
+        { y: 20, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.35, ease: 'power2.out' },
+        '-=0.2'
+      );
+    }
+
+    return () => {
+      tl.kill();
+    };
+  }, []);
+
+  const handleClose = () => {
+    const tl = gsap.timeline({ onComplete: onClose });
+
+    // Fade out content
+    if (contentRef.current) {
+      tl.to(contentRef.current, { y: 20, opacity: 0, duration: 0.18, ease: 'power2.in' });
+    }
+
+    // Modal scale down
+    tl.to(modalContentRef.current, { scale: 0.8, opacity: 0, y: -30, duration: 0.28, ease: 'back.in(1.7)' }, '-=0.12');
+
+    // Fade out backdrop
+    tl.to(backdropRef.current, { opacity: 0, duration: 0.2, ease: 'power2.in' }, '-=0.18');
+  };
+
   return (
     <div
+      ref={backdropRef}
       style={{
         position: 'fixed',
         top: 0,
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.85)',
-        backdropFilter: 'blur(10px)',
+        backgroundColor: 'rgba(0, 0, 0, 0.75)',
+        backdropFilter: 'blur(5px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        zIndex: 10000,
-        padding: '20px',
+        zIndex: 9999,
+        padding: isMobile ? '20px' : '40px',
+        overflow: 'auto',
       }}
-      onClick={onClose}
+      onClick={handleClose}
     >
       <div
+        ref={modalContentRef}
         style={{
-          backgroundColor: 'var(--bg-secondary)',
+          backgroundColor: 'var(--bg-primary)',
           borderRadius: '20px',
           border: '2px solid var(--accent-primary)',
+          boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)',
           maxWidth: '700px',
           width: '100%',
           maxHeight: '90vh',
@@ -974,31 +1064,38 @@ const PackageModal = ({ package: pkg, isMobile, onClose, openBooking }) => {
       >
         {/* Close Button */}
         <button
-          onClick={onClose}
+          onClick={handleClose}
           style={{
             position: 'absolute',
             top: '20px',
             right: '20px',
+            background: 'none',
+            border: 'none',
+            fontSize: '2rem',
+            color: 'var(--text-secondary)',
+            cursor: 'pointer',
             width: '40px',
             height: '40px',
-            borderRadius: '50%',
-            border: 'none',
-            background: 'var(--bg-primary)',
-            color: 'var(--text-primary)',
-            fontSize: '1.5rem',
-            cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 1,
+            borderRadius: '50%',
+            transition: 'all 0.3s ease',
+            zIndex: 10,
           }}
-          onMouseEnter={(e) => (e.target.style.backgroundColor = 'var(--accent-primary)')}
-          onMouseLeave={(e) => (e.target.style.backgroundColor = 'var(--bg-primary)')}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'rotate(90deg) scale(1.2)';
+            e.currentTarget.style.color = 'var(--accent-primary)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'rotate(0deg) scale(1)';
+            e.currentTarget.style.color = 'var(--text-secondary)';
+          }}
         >
           ×
         </button>
 
-        <div style={{ padding: isMobile ? '30px 25px' : '40px' }}>
+        <div ref={contentRef} style={{ padding: isMobile ? '30px 25px' : '40px' }}>
           {/* Header */}
           <div style={{ textAlign: 'center', marginBottom: '30px' }}>
             <div style={{ fontSize: '4rem', marginBottom: '15px' }}>{pkg.icon}</div>

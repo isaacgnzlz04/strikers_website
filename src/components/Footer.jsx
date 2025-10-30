@@ -8,6 +8,7 @@ const Footer = () => {
   const location = useLocation();
   const [isMobile, setIsMobile] = useState(false);
   const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
 
   useEffect(() => {
     const handleResize = () => {
@@ -24,9 +25,15 @@ const Footer = () => {
     e.preventDefault();
     
     try {
-      await userService.subscribeNewsletter(email);
+      // Split name into first and last name
+      const nameParts = name.trim().split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+      
+      await userService.subscribeNewsletter(email, firstName, lastName);
       alert('Thank you for subscribing!');
       setEmail('');
+      setName('');
     } catch (err) {
       alert(err.message || 'Failed to subscribe. Please try again.');
     }
@@ -301,6 +308,32 @@ const Footer = () => {
               Subscribe to our newsletter for special offers, events, and bowling tips!
             </p>
             <form onSubmit={handleNewsletterSubmit}>
+              <input
+                type="text"
+                placeholder="Your name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  fontFamily: 'var(--font-body)',
+                  fontSize: '0.95rem',
+                  color: 'var(--text-primary)',
+                  background: 'var(--bg-primary)',
+                  border: '1px solid rgba(var(--text-primary-rgb), 0.2)',
+                  borderRadius: '8px',
+                  marginBottom: '12px',
+                  transition: 'border-color 0.3s ease',
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = 'var(--accent-primary)';
+                  e.target.style.outline = 'none';
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = 'rgba(var(--text-primary-rgb), 0.2)';
+                }}
+              />
               <input
                 type="email"
                 placeholder="Your email"

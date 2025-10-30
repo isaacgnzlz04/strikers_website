@@ -7,6 +7,8 @@ import { ContactSection } from '../components';
 import ProfileCard from '../components/ProfileCard';
 import TiltedCard from '../components/TiltedCard';
 import GradualBlur from '../components/GradualBlur';
+import SEO from '../components/SEO';
+import { generateLocalBusinessSchema } from '../utils/schema';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -22,8 +24,11 @@ const AboutPage = ({ openBooking }) => {
       const signupSection = document.getElementById('league-signup');
       if (signupSection) {
         signupSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        // If section not found, scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
-    }, 100);
+    }, 300);
   };
 
   useEffect(() => {
@@ -43,6 +48,14 @@ const AboutPage = ({ openBooking }) => {
 
   return (
     <main style={{ position: 'relative', zIndex: 1 }}>
+      <SEO
+        title="About Us - 30+ Years of Bowling Entertainment"
+        description="Learn about Mainlee Strikers, Russellville's premier bowling center for over 30 years. 32 lanes, arcade games, sports bar, and family-friendly entertainment. Our story, facilities, and community commitment."
+        keywords="Mainlee Strikers, bowling alley history, Russellville AR entertainment, family bowling center, 32 lane bowling, community bowling, bowling facility Arkansas"
+        canonical="https://www.mainleestrikers.com/about"
+        schema={generateLocalBusinessSchema()}
+      />
+      
       <section className="section-title" style={{ padding: '120px 20px 60px', position: 'relative', overflow: 'hidden' }}>
         <GradualBlur position="top" height="4rem" strength={1.5} />
         <div className="section-content container-custom" style={{ maxWidth: '1000px', margin: '0 auto' }}>
@@ -335,8 +348,11 @@ const AboutPage = ({ openBooking }) => {
                     const pricingSection = document.getElementById('hours-pricing');
                     if (pricingSection) {
                       pricingSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    } else {
+                      // If section not found, scroll to top
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
                     }
-                  }, 100);
+                  }, 300);
                 }} 
                 className="btn-primary"
                 enableSpotlight={true}

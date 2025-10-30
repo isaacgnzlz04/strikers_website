@@ -17,7 +17,8 @@ const CardNav = ({
   buttonTextColor,
   onButtonClick,
   currentPath,
-  modalOpen = false
+  modalOpen = false,
+  style = {}
 }) => {
   // Close nav dropdown if a modal opens
   // Only run when modalOpen changes to true
@@ -180,6 +181,7 @@ const CardNav = ({
   return (
     <div
       className={`card-nav-container fixed left-1/2 -translate-x-1/2 w-[90%] max-w-[800px] z-[999] top-[1.2em] md:top-[2em] ${className}`}
+      style={style}
     >
       <nav
         ref={navRef}

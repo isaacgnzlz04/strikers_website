@@ -15,6 +15,7 @@ function App() {
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [isLeagueSignupModalOpen, setIsLeagueSignupModalOpen] = useState(false);
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
+  const [isPackageModalOpen, setIsPackageModalOpen] = useState(false);
   const [selectedLeague, setSelectedLeague] = useState('');
   const [showStandings, setShowStandings] = useState(false);
   const [showHonorScores, setShowHonorScores] = useState(false);
@@ -55,7 +56,7 @@ function App() {
       // Section doesn't exist on current page, navigate to home page
       if (location.pathname !== '/') {
         navigate('/');
-        // Wait for navigation, then scroll
+        // Wait for navigation and rendering, then scroll
         setTimeout(() => {
           if (sectionId === 'home') {
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -63,9 +64,15 @@ function App() {
             const element = document.getElementById(sectionId);
             if (element) {
               element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+              // If still not found, scroll to top
+              window.scrollTo({ top: 0, behavior: 'smooth' });
             }
           }
-        }, 100);
+        }, 300);
+      } else {
+        // Already on home page but element not found, scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     }
   };
@@ -240,9 +247,9 @@ function App() {
         ease="power3.out"
         onButtonClick={() => setIsBookingModalOpen(true)}
         currentPath={location.pathname}
-        modalOpen={isBookingModalOpen || isLeagueSignupModalOpen || isEventModalOpen || showStandings || showHonorScores}
+        modalOpen={isBookingModalOpen || isLeagueSignupModalOpen || isEventModalOpen || isPackageModalOpen || showStandings || showHonorScores}
         style={{ 
-          display: (isBookingModalOpen || isLeagueSignupModalOpen || isEventModalOpen) ? 'none' : 'block'
+          display: (isBookingModalOpen || isLeagueSignupModalOpen || isEventModalOpen || isPackageModalOpen) ? 'none' : 'block'
         }}
       />
 
@@ -290,6 +297,7 @@ function App() {
           >
             <EventsPackagesPage 
               openBooking={() => setIsEventModalOpen(true)} 
+              onModalChange={setIsPackageModalOpen}
             />
           </div>
         } />

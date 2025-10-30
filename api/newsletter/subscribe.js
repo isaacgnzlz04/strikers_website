@@ -35,9 +35,9 @@ export default async function handler(req, res) {
   const { email, firstName, lastName } = req.body;
 
   // Validate required fields
-  if (!email) {
+  if (!email || !firstName) {
     return res.status(400).json({ 
-      error: 'Email is required'
+      error: 'Email and name are required'
     });
   }
 

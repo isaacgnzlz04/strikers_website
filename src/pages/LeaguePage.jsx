@@ -5,6 +5,8 @@ import LeagueCard from '../components/LeagueCard';
 import MagicButton from '../components/MagicButton';
 import TiltedCard from '../components/TiltedCard';
 import GradualBlur from '../components/GradualBlur';
+import SEO from '../components/SEO';
+import { generateSportsLocationSchema } from '../utils/schema';
 import { leagueService } from '../services/leagueService';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -212,6 +214,14 @@ const LeaguePage = ({ openLeagueSignup, openStandings, openHonorScores }) => {
 
   return (
     <div style={{ minHeight: '100vh' }}>
+      <SEO
+        title="Bowling Leagues - Youth, Adult, Senior & Mixed Leagues"
+        description="Join bowling leagues at Mainlee Strikers in Russellville, AR! Youth leagues, adult leagues, senior leagues, and mixed leagues available. Great for beginners and experienced bowlers. Sign up today!"
+        keywords="bowling leagues Russellville AR, youth bowling league, adult bowling league, senior bowling league, mixed bowling league Arkansas, bowling team Russellville, competitive bowling, recreational bowling leagues"
+        canonical="https://www.mainleestrikers.com/leagues"
+        schema={generateSportsLocationSchema()}
+      />
+      
       {/* Hero Section */}
       <section
         ref={heroRef}

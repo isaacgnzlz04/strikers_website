@@ -7,6 +7,8 @@ import GallerySection from '../components/GallerySection';
 import AdvertisersSection from '../components/AdvertisersSection';
 import SpecialProgramsSection from '../components/SpecialProgramsSection';
 import { ContactSection } from '../components';
+import SEO from '../components/SEO';
+import { generateLocalBusinessSchema } from '../utils/schema';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -29,6 +31,14 @@ const HomePage = ({ openBooking }) => {
 
   return (
     <>
+      <SEO
+        title="Mainlee Strikers - Bowling Alley, Parties & Events in Russellville, AR"
+        description="Premier bowling alley in Russellville, AR featuring 32 lanes, birthday party packages, corporate events, bowling leagues, 30+ arcade games, and sports bar. Book your lane today!"
+        keywords="bowling alley Russellville AR, bowling near me, birthday party venue Russellville, corporate events Arkansas, bowling leagues Russellville, arcade games, sports bar Russellville, family entertainment, team building activities, party packages Russellville"
+        canonical="https://www.mainleestrikers.com/"
+        schema={generateLocalBusinessSchema()}
+      />
+      
       {/* Hero Section with CTA - Book Now! */}
       <HeroSection openBooking={openBooking} />
 
